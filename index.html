@@ -1,0 +1,3778 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.0.0/DragDropTouch.js"></script>
+<title>Sweet Brew Manager</title>
+<style>
+/* Nhập phông chữ Fredoka: Mềm mại, Dày và cực kỳ Sang trọng */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
+    /* Màu hồng pastel và biến toàn cục */
+    :root{
+        --bg: #fdf0f4;
+        --card: #ffeef8;
+        --accent: #ffb6d5;
+        --muted: #a66e86;
+        --text: #4b2030;
+        --glass: rgba(255,255,255,0.7);
+        --highlight-color: #ffcc00;
+        --side-w: 200px;
+    }
+    
+    html,body{
+        height:100%;
+        margin:0;
+        font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+        line-height: 1.5;
+    }
+    body{
+        background:linear-gradient(180deg,var(--bg),#fff);
+        color:var(--text);
+        -webkit-font-smoothing:antialiased;
+        font-size: 14px;
+    }
+
+h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    
+    /* Màu nâu Espresso đậm để tạo sự sang trọng */
+    color: #4b2030; 
+    
+    /* Hiệu ứng đổ bóng mờ mịn giúp chữ có chiều sâu như được in nổi */
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+    
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.sub {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px; /* Khoảng cách chữ rộng tạo cảm giác cao cấp (Premium) */
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+    /* Layout chính */
+    .app {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 12px;
+        box-sizing: border-box;
+        display: grid;
+        gap: 15px;
+    }
+
+    /* Tối ưu cho Máy tính (3 Cột) */
+    @media (min-width: 1024px) {
+        .app {
+            grid-template-columns: var(--side-w) 1fr 280px;
+            grid-template-areas: 
+                "header header header"
+                "nav main side";
+            align-items: start;
+        }
+        header { grid-area: header; flex-direction: row !important; align-items: center !important; }
+        nav { 
+            grid-area: nav; 
+            flex-direction: column !important; 
+            position: sticky; 
+            top: 15px; 
+            overflow: visible !important;
+        }
+        main#views { grid-area: main; }
+        .desktop-sidebar { 
+            display: flex !important; 
+            grid-area: side; 
+            flex-direction: column; 
+            gap: 15px; 
+            position: sticky; 
+            top: 15px;
+        }
+        .mobile-stats-card { display: none !important; } /* Ẩn stats ngang trên PC */
+        .menu-item { width: 100%; text-align: left; margin-bottom: 5px; }
+    }
+
+   /* Tối ưu cho Máy tính (Desktop) */
+@media (min-width: 1024px) {
+    .app {
+        display: grid;
+        grid-template-columns: var(--side-w) 1fr 280px;
+        grid-template-areas: 
+            "header header header"
+            "nav main side"
+            "footer footer footer"; /* Footer chiếm trọn hàng cuối */
+        gap: 20px;
+        align-items: start;
+    }
+
+
+
+.menu-item {
+    flex: 0 0 auto; /* Không cho các item bị co lại, giữ nguyên kích thước để cuộn */
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap; /* Không cho chữ xuống dòng */
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+    header { grid-area: header; }
+    nav { grid-area: nav; }
+    main#views { grid-area: main; }
+    .desktop-sidebar { grid-area: side; display: flex !important; }
+
+    footer {
+        grid-area: footer; /* Chỉ áp dụng grid-area này trên PC */
+        margin-top: 50px;
+        padding: 40px 0;
+        text-align: center;
+        border-top: 1px dashed var(--accent);
+        width: 100%;
+    }
+}
+
+/* Tối ưu cho Điện thoại (Mobile) */
+@media (max-width: 1023px) {
+    .app {
+        display: flex;
+        flex-direction: column; /* Trả về dạng cột đơn trên điện thoại */
+        grid-template-areas: none; /* Hủy bỏ grid areas của PC */
+    }
+
+/* Thanh menu cuộn ngang trên Mobile */
+nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto; /* Cho phép cuộn ngang */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+    padding: 10px 5px;
+    margin-bottom: 10px;
+}
+
+/* Ẩn thanh cuộn xấu xí nhưng vẫn cho phép cuộn (tùy chọn) */
+nav::-webkit-scrollbar {
+    display: none;
+}
+nav {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+@media (max-width: 1023px) {
+    nav {
+        background: linear-gradient(to right, var(--bg) 0%, transparent 5%, transparent 95%, var(--bg) 100%);
+    }
+}
+    footer {
+        margin-top: 20px;
+        padding: 20px 10px;
+        text-align: center;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        font-size: 12px; /* Chữ nhỏ hơn một chút cho mobile */
+    }
+}
+
+footer {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 20px 0;
+    text-align: center;
+    letter-spacing: 1px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 20px;
+    font-style: italic;
+    opacity: 0.8;
+    /* Hiệu ứng chuyển động nhẹ */
+    transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi di chuột vào (trên PC) */
+footer:hover {
+    opacity: 1;
+    letter-spacing: 1.5px;
+    color: var(--text);
+}
+        .desktop-sidebar { display: none; }
+    }
+
+    header{
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:8px;
+    }
+    h1{ font-size:20px; margin:0; color:var(--text); }
+    .sub{ font-size:12px; color:var(--muted); }
+    .card{ background:var(--card); border-radius:12px; padding:12px; margin-bottom:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .row{ display:flex; gap:8px; align-items:center; }
+    
+    /* Animation cho chỉ số khi thay đổi */
+    .stat-update { animation: highlight 0.5s ease-out; }
+    @keyframes highlight {
+        0% { transform: scale(1); background: var(--highlight-color); }
+        50% { transform: scale(1.05); background: var(--highlight-color); }
+        100% { transform: scale(1); background: var(--glass); }
+    }
+
+    .small{ font-size:12px; color:var(--muted); }
+    button{
+        background:linear-gradient(180deg,var(--accent),#ff98c0);
+        border:0; padding:8px 12px; border-radius:10px;
+        color:var(--text); font-weight:600; box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        cursor: pointer; transition: background-color 0.2s ease, transform 0.1s;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+    .btn-ghost{ background:transparent; border:1px solid rgba(0,0,0,0.06); color:var(--text); box-shadow: none; }
+    
+    nav{ display:flex; gap:6px; }
+    .menu-item{
+        flex:0 0 auto; padding:8px 12px; border-radius:10px;
+        background:#fff; font-size:13px; white-space: nowrap; cursor: pointer; transition: 0.2s;
+    }
+    .menu-item:hover { background: var(--card); }
+    
+    /* Tối ưu Grid chung */
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+        gap: 12px; 
+    }
+
+    /* --- CẤU HÌNH GRID CHO MINIGAME HUB --- */
+
+/* Lưới Minigame: 1 cột mobile, 2 cột PC */
+#minigames .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px; /* Giảm khoảng cách giữa các card */
+    padding: 5px;
+}
+
+@media (min-width: 1024px) {
+    #minigames .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+    
+    /* Điều chỉnh nhẹ chiều cao card để giao diện 2 cột cân đối hơn */
+    #minigames .card {
+        min-height: 220px;
+    }
+}
+
+/* Biến mỗi minigame thành một hộp chức năng nhỏ gọn */
+#minigames .card {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    min-height: 180px; /* Giảm chiều cao xuống */
+    justify-content: flex-start;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.2s;
+    overflow: hidden;
+}
+
+#minigames .card > div:first-child {
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+/* Khu vực chứa nội dung minigame bên trong card */
+.minigame-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Nút bấm trong minigame: Nhỏ gọn hơn */
+#minigames button {
+    padding: 6px 4px;
+    font-size: 11px;
+    width: 100%;
+    margin-top: auto; /* Đẩy nút xuống đáy card */
+}
+
+/* Khu vực hiển thị kết quả hoặc trạng thái pha chế */
+#makeArea, #orderBox {
+    font-size: 10px;
+    padding: 4px;
+    background: #f9f9f9;
+    margin-top: 4px;
+    border-radius: 4px;
+}
+
+    
+    .task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 12px;
+    
+    /* Hiệu ứng loang: Từ màu card trắng sang màu accent của Skin với độ mờ 20% */
+    background: linear-gradient(180deg, #ffffff, var(--accent));
+    
+    /* Hoặc nếu bạn muốn loang nhẹ nhàng hơn, hãy dùng dòng dưới đây: */
+    /* background: linear-gradient(180deg, var(--card), var(--bg)); */
+
+    border: 1px solid rgba(0,0,0,0.03);
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Khi hoàn thành: Giữ cấu trúc loang cũ, chỉ thay đổi màu viền để nhận diện */
+.task-status-done { 
+    /* Vẫn loang trắng -> Accent của nền để không bị lạc tông */
+     background: linear-gradient(180deg, #ffffff, var(--accent)) !important; 
+    border: 2px solid #b7ebc6 !important; /* Viền xanh lá để biết đã xong */
+    opacity: 0.8; /* Làm mờ nhẹ để phân biệt với nhiệm vụ chưa làm */
+}
+
+/* Khi sẵn sàng nhận: Giữ cấu trúc loang cũ, thay đổi viền nổi bật hơn */
+.task-status-ready { 
+     background: linear-gradient(180deg, #ffffff, var(--accent)) !important; 
+    border: 2px solid #ffcc00 !important; /* Viền vàng đậm để báo hiệu cần ấn Nhận */
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); /* Thêm chút ánh hào quang vàng */
+}
+    .badge{ background:#fff; border-radius:8px; padding:4px 6px; font-size:12px; white-space: nowrap; }
+    
+    .minigame{ min-height:220px; border-radius:10px; padding:10px; background:rgba(255,255,255,0.9); border:1px dashed rgba(0,0,0,0.04); }
+    .order{ padding:8px; border-radius:8px; background:#fff; border:1px solid rgba(0,0,0,0.04); display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; }
+    .order[data-stock="false"] { opacity: 0.6; filter: grayscale(80%); }
+    .list-scroll{ max-height:260px; overflow-y:auto; padding-right:6px; }
+    .login{ display:flex; flex-direction:column; gap:8px; max-width:420px; margin:20px auto; }
+    input,select{ padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); font-size:14px; width: 100%; box-sizing: border-box; }
+    footer{ font-size:12px; color:var(--muted); padding:8px 0; text-align:center; }
+
+    .dropzone{ border:2px dashed rgba(150,80,110,0.12); padding:8px; border-radius:8px; min-height:60px; display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start; justify-content: center; color: var(--muted); }
+    .draggable {
+    padding: 6px 8px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.04);
+    cursor: grab;
+    white-space: nowrap;
+    /* Thêm 2 dòng dưới đây */
+    touch-action: none; 
+    user-select: none;
+}
+.draggable:active {
+    cursor: grabbing;
+}
+    .hidden{ display:none !important; }
+    .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:20px; background:var(--accent); color:var(--text); padding:8px 12px; border-radius:8px; box-shadow:0 8px 25px rgba(0,0,0,0.12); z-index: 1000; white-space: nowrap; animation: fadein 0.5s; }
+    @keyframes fadein { from { opacity: 0; bottom: 0px; } to { opacity: 1; bottom: 20px; } }
+
+    .brew-bench { border: 1px solid #ccc; padding: 10px; border-radius: 8px; min-height: 120px; background: #fff; margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .recipe-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+    .recipe-table th, .recipe-table td { border: 1px solid #eee; padding: 4px; text-align: left; }
+    .btn-sell-recipe { background: linear-gradient(180deg, #6c757d, #495057); color: white; margin-left: 8px; padding: 6px 10px; font-size: 12px; }
+    .btn-train { background: linear-gradient(180deg, #78a2d1, #5d8ab5); color: white; }
+
+    /* Custom classes cho Dashboard mới */
+    .stat-box-v { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 12px; }
+/* --- TỐI ƯU THU GỌN MINIGAME HUB --- */
+
+
+
+/* Card Minigame thu gọn */
+#minigames .card {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    min-height: 140px; /* Giảm đáng kể từ 280px */
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    justify-content: flex-start;
+}
+
+#minigames .card:hover {
+    transform: translateY(-2px);
+}
+
+/* Thu nhỏ tiêu đề trong card */
+#minigames .card > div:first-child {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Thu nhỏ khu vực tương tác (Dropzone) */
+.dropzone {
+    min-height: 50px !important; /* Thu nhỏ chiều cao khu vực kéo thả */
+    padding: 5px;
+    font-size: 11px;
+}
+
+/* Thu nhỏ khu vực pha chế & kết quả */
+#makeArea, #orderBox, #machine {
+    min-height: 30px !important;
+    font-size: 11px;
+    padding: 4px;
+    margin-top: 5px;
+}
+
+/* Thu nhỏ các nút bấm trong minigame để tiết kiệm chỗ */
+#minigames button {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-top: 5px;
+    width: auto; /* Không cho chiếm 100% nếu không cần thiết */
+    display: inline-block;
+}
+
+/* Khu vực hàng nút bấm (VD: Pha cà phê) */
+.make-steps {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.make-steps button {
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+}
+
+/* Giới hạn chiều cao bảng công thức */
+.recipe-table-container {
+    max-height: 180px;
+}
+    
+    /* Thiết lập thanh cuộn chung mượt mà cho toàn ứng dụng */
+#views > section {
+    max-height: 85vh; /* Giới hạn chiều cao tối đa của mỗi phân đoạn */
+    overflow-y: auto; /* Hiện thanh cuộn khi nội dung vượt quá */
+    padding-right: 5px;
+    scrollbar-width: thin; /* Thanh cuộn nhỏ gọn trên Firefox */
+}
+
+/* Tùy chỉnh thanh cuộn cho Chrome/Safari/Edge */
+#views > section::-webkit-scrollbar {
+    width: 6px;
+}
+#views > section::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+/* Thêm cuộn cho danh sách lịch sử */
+#historyList {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid rgba(0,0,0,0.03);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Thêm cuộn cho lưới Minigame trên Mobile */
+@media (max-width: 1023px) {
+    #minigames .grid {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-bottom: 20px;
+    }
+}
+
+/* Thêm cuộn cho danh sách nhân viên trong Minigame Staff */
+#hiredStaffList {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 5px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 8px;
+}
+
+/* Thêm cuộn cho bảng công thức */
+.recipe-table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+/* Sidebar bên phải trên PC cũng cần cuộn nếu quá nhiều stats */
+.desktop-sidebar {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+/* Ép Kho & Shop hiển thị 1 cột trên PC */
+@media (min-width: 1024px) {
+    #inventory .grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+.btn-train {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 0;
+    transition: width 0.15s ease-out;
+    pointer-events: none;
+}
+
+.btn-train span {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Hiệu ứng rung nhẹ để thu hút sự chú ý khi chuyển hướng từ nhiệm vụ */
+@keyframes attention-blink {
+    0% { outline: 2px solid transparent; }
+    50% { outline: 2px solid var(--accent); }
+    100% { outline: 2px solid transparent; }
+}
+
+.highlight-task-area {
+    animation: attention-blink 2s ease-in-out 2;
+    border-radius: 8px;
+}
+/* Hiệu ứng viền hồng nhấp nháy để xác định khu vực */
+.highlight-target {
+    outline: 3px solid #ffb6d5 !important; /* Màu accent hồng */
+    outline-offset: 4px;
+    border-radius: 8px;
+    animation: pulse-highlight 2s infinite;
+}
+
+@keyframes pulse-highlight {
+    0% { outline-color: #ffb6d5; box-shadow: 0 0 0px #ffb6d5; }
+    50% { outline-color: #ff4d94; box-shadow: 0 0 15px #ffb6d5; }
+    100% { outline-color: #ffb6d5; box-shadow: 0 0 0px #ffb6d5; }
+}
+/* Hiệu ứng viền hồng nổi bật */
+.highlight-task-active {
+    outline: 4px solid #ffb6d5 !important; /* Màu hồng accent */
+    outline-offset: 4px;
+    border-radius: 8px;
+    transition: outline 0.3s ease;
+    z-index: 10;
+}
+
+/* Thêm cuộn cho danh sách ứng viên đang chờ tuyển */
+#cands {
+    max-height: 400px; /* Bạn có thể điều chỉnh chiều cao này tùy ý */
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    border: 1px inset rgba(0,0,0,0.05);
+    scrollbar-width: thin;
+}
+
+/* Tùy chỉnh thanh cuộn cho đẹp (Chrome/Safari) */
+#cands::-webkit-scrollbar {
+    width: 6px;
+}
+#cands::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+#cands .card {
+    width: 100%; /* Ép mỗi ứng viên chiếm trọn một hàng trong danh sách cuộn */
+    box-sizing: border-box;
+}
+
+#dayInfo {
+    text-shadow: 1px 1px 0px #fff;
+    letter-spacing: 1px;
+}
+
+#diffDisplay:empty {
+    display: none;
+}
+
+/* Làm cho Header trông rộng rãi hơn trên PC */
+@media (min-width: 1024px) {
+    header {
+        margin-bottom: 20px !important;
+        padding: 10px 0;
+    }
+}
+
+.draggable span { transition: all 0.3s ease; }
+.stat-update-green { animation: highlight-green 0.5s ease-out; }
+@keyframes highlight-green {
+    0% { color: #2ecc71; transform: scale(1.2); }
+    100% { color: inherit; transform: scale(1); }
+}
+
+/* Khung chứa danh sách shop ảo để cuộn */
+.shop-scroll-container {
+    max-height: 350px; /* Chiều cao tối đa bạn muốn */
+    overflow-y: auto;
+    padding-right: 8px; /* Tránh thanh cuộn đè lên chữ */
+    margin-top: 10px;
+}
+
+/* Tùy chỉnh thanh cuộn cho đồng bộ với game */
+.shop-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+.shop-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+.shop-scroll-container::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.02);
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <header style="flex-direction: column; align-items: flex-start; gap: 10px;">
+    <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start;">
+        <div>
+            <h1>Sweet Brew Manager</h1>
+            <div class="sub">30 Ngày Thử Thách &bull; Cày Beancoin &bull; Đổi quà</div>
+            <div id="hello" style="font-weight:800; color: var(--accent); font-size: 16px; margin-top: 5px;">Chưa đăng nhập</div>
+        </div>
+        
+        <div id="userPanel" style="text-align:right">
+            <div id="dayInfo" style="font-family: 'Fredoka'; font-size: 18px; color: var(--text); font-weight: 700;">Ngày 0 / 30</div>
+            <div id="diffDisplay" class="small" style="background: var(--accent); color: var(--text); padding: 2px 8px; border-radius: 20px; display: inline-block; margin-top: 4px; font-weight: bold;"></div>
+            <div style="margin-top:10px">
+                <button id="btnLogin">Đăng nhập</button>
+                <button id="btnLogout" class="btn-ghost hidden">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <section class="card mobile-stats-card">
+        <div class="row" style="justify-content:space-between; flex-wrap: wrap;">
+            <div><div class="small">Coin 💰</div><div style="font-weight:800" class="stat-coin">—</div></div>
+            <div><div class="small">Point ✨</div><div style="font-weight:800" class="stat-point">—</div></div>
+            <div><div class="small">Bean ⭐</div><div style="font-weight:800" class="stat-beancoin">—</div></div>
+            <div><div class="small">Uy tín 💯</div><div style="font-weight:700" class="stat-reputation">—</div></div>
+            <div style="text-align:right">
+                <div class="small">Ngày mới:</div>
+                <div class="stat-countdown" style="font-weight:700">--:--:--</div>
+            </div>
+        </div>
+    </section>
+
+    <nav aria-label="menu">
+        <div class="menu-item" data-view="tasks">Nhiệm Vụ</div>
+        <div class="menu-item" data-view="minigames">Minigame</div>
+        <div class="menu-item" data-view="orders">Order Online</div>
+        <div class="menu-item" data-view="inventory">Kho & Shop</div>
+        <div class="menu-item" data-view="history">Lịch Sử</div>
+        <div class="menu-item" data-view="settings">Cài Đặt</div>
+    </nav>
+
+    <main id="views">
+        <div id="loginView" class="card hidden">
+            <div style="font-weight:700">Đăng nhập / Tạo Tài Khoản</div>
+            <div class="login">
+                <input id="username" placeholder="Nhập tên người chơi (lưu trên thiết bị)" />
+                <label class="small">Mức độ khó mặc định:</label>
+                <select id="difficulty">
+    <option value="easy" selected>Dễ (Khởi đầu 500.000 ₫)</option>
+    <option value="normal">Bình thường (Khởi đầu 300.000 ₫)</option>
+    <option value="hard">Khó (Khởi đầu 200.000 ₫)</option>
+</select>
+                <div style="display:flex;gap:8px; flex-wrap: wrap;">
+    <button id="doLogin">Bắt đầu bản chính thức</button>
+    <button id="doBeta" style="background: linear-gradient(180deg, #6c5ce7, #a29bfe); color: white;">Bắt đầu máy chủ thử nghiệm</button>
+    <button id="doGuest" class="btn-ghost">Chơi thử</button>
+</div>
+            </div>
+        </div>
+
+        <section id="tasks" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+            <div style="font-weight:700">Nhiệm Vụ Ngày (<span id="dayNumber">0</span>/30)</div>
+            <div class="small">Mỗi ngày chọn 10 nhiệm vụ ngẫu nhiên</div>
+            <div class="small" style="margin-top: 4px; font-weight: bold; color: var(--muted);">
+                💡 Khi hoàn thành nhiệm vụ nhớ ấn <span style="color: var(--text); border-bottom: 1px solid;">NHẬN</span> để lấy điểm thưởng.
+            </div>
+            <div class="small" style="font-weight: bold; color: var(--muted);">
+                ⚠️ Khi reset ngày sẽ tốn chi phí <span style="color: #d63031;">2000 coins</span> vận hành.
+            </div>
+        </div>
+        <div>
+            <button id="btnNextDay" class="btn-ghost">Reset ngày</button>
+        </div>
+    </div>
+    <div class="grid" id="taskList"></div>
+</section>
+
+        <section id="minigames" class="card hidden">
+            <div style="font-weight:700;margin-bottom:6px">Minigame Hub</div>
+            <div class="grid">
+                <div class="card">
+                    <div style="font-weight:700">Trang trí</div>
+                    <div class="small">Thiết kế Background</div>
+                    <div style="margin-top:8px" id="decorateMini" ></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Dọn bàn</div>
+                    <div class="small">Click nhanh để dọn sạch</div>
+                    <div style="margin-top:8px" id="cleanMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Pha cà phê</div>
+                    <div class="small">Làm theo order/Menu mới</div>
+                    <div style="margin-top:8px" id="makeMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Quảng cáo</div>
+                    <div class="small">Chọn kênh & target</div>
+                    <div style="margin-top:8px" id="adsMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Order Online</div>
+                    <div class="small">Xử lý đơn tự sinh</div>
+                    <div style="margin-top:8px" id="ordersMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Kho hàng</div>
+                    <div class="small">Sắp xếp & kiểm kê</div>
+                    <div style="margin-top:8px" id="invMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Phục vụ</div>
+                    <div style="margin-top:8px" id="serveMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Nhân sự</div>
+                    <div class="small">Phỏng vấn nhân viên</div>
+                    <div style="margin-top:8px" id="staffMini"></div>
+                </div>
+                <div class="card">
+                    <div style="font-weight:700">Bảo trì máy</div>
+                    <div class="small">Click sửa lỗi</div>
+                    <div style="margin-top:8px" id="maintMini"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="orders" class="card hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div style="font-weight:700">Order Online</div>
+                    <div class="small">Tối đa 12 order đồng thời</div>
+                </div>
+                <div>
+                    <div class="small">Active orders: <span id="ordersCount">0</span></div>
+                </div>
+            </div>
+            <div class="list-scroll" style="margin-top:8px" id="ordersList"></div>
+            <div style="margin-top:8px">
+                <button id="btnGenerate3">Tạo ngay 3 order</button>
+            </div>
+        </section>
+
+        <section id="inventory" class="card hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+            <div style="font-weight:700">Kho & Shop</div>
+            <div class="small">Quản lý nguyên liệu & nâng cấp</div>
+        </div>
+    </div>
+    <div style="margin-top:8px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="card">
+            <div style="font-weight:700">Kho hàng</div>
+            <div style="margin-top:8px" id="invGame"></div>
+        </div>
+
+        <button onclick="convertPointsToBean()" class="btn-ghost" style="background:var(--accent); font-weight:bold; padding: 12px;">
+            ✨ Đổi Point → BeanCoin ⭐
+        </button>
+
+        <div class="card">
+            <div style="font-weight:700">Shop ảo (Nâng cấp & Skin)</div>
+            <div style="margin-top:8px" id="shopVirtual"></div>
+        </div>
+
+        <div class="card" style="border: 2px solid #ddd;">
+            <div style="font-weight:700; color: #2c3e50;">Ngân Hàng Trung Ương 🏦</div>
+            <div class="small" style="margin-bottom: 8px;">Vay vốn kinh doanh - Lãi suất 10%</div>
+            <div id="bankMini"></div>
+        </div>
+
+        <div class="card">
+            <div style="font-weight:700">Shop thật (Đổi quà)</div>
+            <div style="margin-top:8px" id="shopReal"></div>
+        </div>
+    </div>
+</section>
+
+        <section id="history" class="card hidden">
+            <div style="font-weight:700">Lịch Sử Hoạt Động</div>
+            <div id="historyList" style="margin-top:8px;max-height:400px;overflow:auto"></div>
+        </section>
+
+        <section id="settings" class="card hidden">
+            <div style="font-weight:700">Cài Đặt</div>
+            <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.05); padding-top: 10px;">
+                <div style="font-weight:700; margin-bottom: 8px;">Màu Sắc Giao Diện</div>
+                <div id="skinButtons" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+            <div style="margin-top:8px">
+                <button id="exportSave" class="btn-ghost">Xuất save</button>
+                <button id="importSave" class="btn-ghost">Nhập save</button>
+                <button id="resetAll" class="btn-ghost" style="color:#900">Xóa dữ liệu</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <button id="btnHelp" class="btn-ghost">Xem Hướng Dẫn</button>
+            </div>
+        </section>
+    </main>
+
+    <aside class="desktop-sidebar">
+        <div class="card">
+            <div style="font-weight: 800; border-bottom: 1px solid var(--accent); margin-bottom: 10px; padding-bottom: 5px;">Thống kê Quán</div>
+            
+            <div class="stat-box-v">
+                <div class="small">Tiền vốn (Coin)</div>
+                <div style="font-weight:800; font-size: 18px;" class="stat-coin">—</div>
+            </div>
+            
+            <div class="stat-box-v">
+                <div class="small">Point (Nhiệm vụ)</div>
+                <div style="font-weight:800; font-size: 18px;" class="stat-point">—</div>
+            </div>
+            
+            <div class="stat-box-v">
+                <div class="small">BeanCoin (Đổi quà)</div>
+                <div style="font-weight:800; font-size: 18px;" class="stat-beancoin">—</div>
+            </div>
+            
+            <div class="stat-box-v">
+                <div class="small">Uy tín cửa hàng</div>
+                <div style="font-weight:700;" class="stat-reputation">—</div>
+            </div>
+        </div>
+
+        <div class="card" style="background: var(--accent); text-align: center;">
+            <div class="small" style="color: var(--text); font-weight: 800;">Thời gian sang ngày mới</div>
+            <div class="stat-countdown" style="font-weight:800; font-size: 24px; margin: 5px 0;">--:--:--</div>
+            <button onclick="nextDay()" class="btn-ghost" style="width: 100%; background: #fff; margin-top: 5px;">Reset Ngay</button>
+        </div>
+    </aside>
+
+    <footer class="small" id="footerSkinInfo">
+    Sweet Brew Manager &bull; Nơi tạo ra quán cafe của riêng bạn
+</footer>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="helpModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="max-width:500px; width:100%; max-height:80vh; overflow-y:auto; position:relative; background:var(--bg); border:2px solid var(--accent); padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:2px solid var(--accent); padding-bottom:10px;">
+            <h2 style="font-family:'Fredoka'; margin:0; color:var(--text);">Hướng Dẫn Chơi</h2>
+            <button onclick="closeHelp()" style="background:var(--accent); border-radius:50%; width:30px; height:30px; padding:0; line-height:30px;">×</button>
+        </div>
+        <div id="helpContentArea" style="line-height:1.6; color:var(--text); text-align:left;">
+            </div>
+        <button onclick="closeHelp()" style="width:100%; margin-top:15px;">Đã hiểu!</button>
+    </div>
+</div>
+
+<script>
+/*
+    Sweet Brew Manager - Single-file prototype
+    
+    UPDATED FEATURES:
+    - NEW: Tính năng Đào tạo Nhân viên (A -> A+, S -> S+).
+    - NEW: Logic phí đào tạo (2000/3000 coin) và phí sa thải (1000 coin).
+    - NEW: Cập nhật CANDIDATE_POOL (thêm nhân viên S thứ 2, gán cố định skill cho nhân viên A).
+    - NEW: Thêm 2 nhiệm vụ ngày liên quan đến đào tạo.
+    - NEW: Cập nhật logic Auto-Staff để liên kết với rank và skill mới.
+*/
+
+// ---------- Utilities ----------
+const uid = () => 'u'+Math.random().toString(36).slice(2,9);
+const el = id => document.getElementById(id);
+const fmtTime = s => new Date(s*1000).toISOString().substr(11,8);
+
+function toast(msg, t=2500){
+    const box = el('toast');
+    box.textContent = msg;
+    box.classList.remove('hidden');
+    clearTimeout(box._t);
+    box._t = setTimeout(()=>box.classList.add('hidden'), t);
+}
+
+function beep(freq=440,dur=0.08){
+    try{
+        const A = new (window.AudioContext || window.webkitAudioContext)();
+        const o = A.createOscillator(); const g = A.createGain();
+        o.connect(g); g.connect(A.destination);
+        o.type='sine'; o.frequency.value=freq; g.gain.value=0.05;
+        o.start(); g.gain.setValueAtTime(0.05, A.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, A.currentTime+dur);
+        o.stop(A.currentTime+dur+0.02);
+    }catch(e){ }
+}
+
+// CẬP NHẬT: Hàm updateStat để update tất cả các vị trí (class)
+function updateStat(className, value, isCoin=false) {
+    const elements = document.querySelectorAll('.' + className);
+    elements.forEach(element => {
+        const textValue = value.toLocaleString() + (isCoin ? ' ₫' : '');
+        if (element.textContent !== textValue) {
+            element.textContent = textValue;
+            element.classList.remove('stat-update');
+            void element.offsetWidth; 
+            element.classList.add('stat-update');
+        }
+    });
+}
+
+
+// ---------- Data model & defaults (GIỮ NGUYÊN) ----------
+const TASK_POOL = [
+    {id:'t1', title:'Trang trí góc cửa sổ', module:'decorate', diff:'easy', desc:'Bày 1 bàn + 1 cây cảnh.'},
+    {id:'t2', title:'Sắp xếp bàn số 4', module:'clean', diff:'easy', desc:'Dọn sạch vết bẩn trên bàn 4.'},
+    {id:'t3', title:'Pha đơn Espresso', module:'make', diff:'easy', desc:'Pha đúng Espresso (no milk).'},
+    {id:'t4', title:'Chạy chiến dịch IG', module:'ads', diff:'medium', desc:'Chọn Instagram + target học sinh.'},
+    {id:'t5', title:'Xử lý 3 order online', module:'orders', diff:'medium', desc:'Hoàn thành 3 order trong danh sách.'},
+    {id:'t6', title:'Kiểm kho cà phê', module:'inventory', diff:'easy', desc:'Sắp xếp 5 gói cà phê đúng kệ.'},
+    {id:'t7', title:'Phục vụ combo 2 khách', module:'serve', diff:'medium', desc:'Phục vụ 2 khách liên tiếp trong 10s.'},
+    {id:'t8', title:'Phỏng vấn nhân viên pha chế', module:'staff', diff:'medium', desc:'Chọn ứng viên pha chế có kỹ năng cao.'},
+    {id:'t9', title:'Sửa lỗi áp suất máy', module:'maint', diff:'hard', desc:'Click 3 vị trí để sửa.'},
+    {id:'t10', title:'Bày bàn sự kiện', module:'decorate', diff:'hard', desc:'Bố trí 3 vật trang trí thẩm mỹ.'},
+    {id:'t11', title:'Dọn toàn bộ tầng 2', module:'clean', diff:'hard', desc:'Dọn 8 bàn trong thời hạn 45s.'},
+    {id:'t12', title:'Pha đồ uống đặc sắc S', module:'make', diff:'special', desc:'Pha một món nước tự tạo (>= 5 bước) chính xác.'},
+    {id:'t13', title:'Chạy chương trình Flyer', module:'ads', diff:'easy', desc:'Đặt 50 tờ flyer vào khu vực target.'},
+    {id:'t14', title:'Cân tồn kho và đặt hàng', module:'inventory', diff:'medium', desc:'Phát hiện thiếu 2 nguyên liệu.'},
+    {id:'t15', title:'Xử lý khách khó tính', module:'serve', diff:'hard', desc:'Giải quyết khiếu nại trong 30s.'},
+    {id:'t16', title:'Tuyển 1 barista mới', module:'staff', diff:'special', desc:'Tuyển nhân viên bậc S (hiếm).'},
+    {id:'t17', title:'Bảo trì định kỳ 1', module:'maint', diff:'easy', desc:'Làm sạch máy và thay lọc.'},
+    {id:'t18', title:'Thiết kế menu online', module:'make', diff:'medium', desc:'Sáng tạo và lưu 5 công thức nước mới.'},
+    {id:'t19', title:'Chuẩn bị order sáng', module:'make', diff:'medium', desc:'Pha 5 ly theo order sáng.'},
+    {id:'t20', title:'Sắp xếp cửa hàng cho livestream', module:'decorate', diff:'special', desc:'Thiết kế Background: Ánh sáng Mềm, Góc Close-up, Đạo cụ Sách.'},
+    {id:'t21', title:'Đào tạo một nhân viên A lên A+', module:'staff', diff:'medium', desc:'Hoàn thành đào tạo cho 1 nhân viên bậc A.'},
+    {id:'t22', title:'Đào tạo Barista S+ toàn năng', module:'staff', diff:'special', desc:'Đào tạo một nhân viên S lên S+.'}
+];
+
+const DIFF_POINTS = { easy:20, medium:50, hard:80, special:100 };
+
+function defaultPlayer(name, diff = 'easy', isBetaServer = false){
+    let startingCoin = 500000;
+    if (diff === 'normal') startingCoin = 300000;
+    if (diff === 'hard') startingCoin = 200000;
+
+    return {
+        id: uid(), 
+        name: name, 
+        isBeta: isBetaServer, // Sử dụng tham số truyền vào
+        day: 1, 
+        coin: startingCoin,
+        point: 0, 
+        beancoin: 0, 
+        reputation: 50,
+        tasksToday: [], 
+        taskHistory: [], 
+        orders: [], 
+        orderHistory: [],
+        inventory: { coffeeBeans:50, milk:50, sugar:50, cups:100, chocolate: 30, caramel: 30, vanillaSyrup: 30, mint: 30, cinnamon: 30, fruitSyrup: 30, gelatin: 30, spices: 30, herbMix: 30, rareBean: 5 },
+        staff: [], 
+        bankLoan: 0, 
+        loanDueDate: 0, 
+        loanAmount: 0, 
+        recipes: [{name: 'Signature Blend', steps: ['Espresso', 'Chocolate', 'Froth']}],
+        upgrades: { table_upgrade: 0, espresso_booster: 0, recipe_slots: 10, current_skin: isBetaServer ? 'purple' : 'pink', skins_owned: [isBetaServer ? 'purple' : 'pink'], active_boosters: [] },
+        settings: { difficulty: diff },
+        lastOrderGenAt: 0, 
+        lastSavedAt: Date.now()
+    }
+}
+
+const BASE_ORDER_COSTS = {
+    Espresso: { coffeeBeans: 1, cups: 1 }, Latte: { coffeeBeans: 1, milk: 1, cups: 1 },
+    Cappuccino: { coffeeBeans: 1, milk: 1, cups: 1 }, Mocha: { coffeeBeans: 1, milk: 1, sugar: 1, cups: 1 },
+    'Iced Latte': { coffeeBeans: 1, milk: 1, cups: 1 }, Matcha: { sugar: 1, cups: 1 },
+    'Black Coffee': { coffeeBeans: 1, cups: 1 }, 'Special Blend': { coffeeBeans: 2, milk: 1, sugar: 1, cups: 1}
+};
+const TOPPING_COST = { 'Bubble': { sugar: 1 } };
+const BASE_ORDER_TYPES = ['Espresso','Latte','Cappuccino','Mocha','Iced Latte','Matcha','Black Coffee'];
+const NEW_INGREDIENTS = ['Chocolate', 'Caramel', 'Vanilla', 'Mint', 'Cinnamon', 'FruitSyrup', 'Gelatin', 'Spices', 'HerbMix', 'RareBean'];
+
+function evaluateRecipe(steps) {
+    const numSteps = steps.length;
+    let rank, maxPoints, minPoints;
+    if (numSteps >= 7) { rank = '5/5'; maxPoints = 3000; minPoints = 2000; }
+    else if (numSteps === 6) { rank = '4/5'; maxPoints = 2000; minPoints = 1500; }
+    else if (numSteps === 5) { rank = '3/5'; maxPoints = 1500; minPoints = 1000; }
+    else if (numSteps === 4) { rank = '2/5'; maxPoints = 1000; minPoints = 500; }
+    else if (numSteps === 3) { rank = '1/5'; maxPoints = 500; minPoints = 100; }
+    else { rank = '0/5'; maxPoints = 0; minPoints = 0; }
+    const hasNewIngredient = steps.some(step => NEW_INGREDIENTS.includes(step));
+    const sellPrice = hasNewIngredient ? maxPoints : minPoints;
+    return { rank, sellPrice, numSteps, hasNewIngredient, maxPoints, minPoints };
+}
+    
+// NEW: Logic Vay Ngân hàng
+const LOAN_MAX = 1000000; // Max 1 triệu coin
+const LOAN_INTEREST_RATE = 0.10; // 10%
+const LOAN_PERIOD_DAYS = 7; // 7 ngày
+    
+const PASTEL_SKINS = {
+    'pink': { name: 'Hồng Pastel', bg: '#fdf0f4', card: '#ffeef8', accent: '#ffb6d5', muted: '#a66e86', text: '#4b2030', glass: 'rgba(255,255,255,0.7)' },
+    'green': { name: 'Xanh Lá Pastel', bg: '#f0fdf2', card: '#e8f7ec', accent: '#a8e6b1', muted: '#6a9d70', text: '#2c4b30', glass: 'rgba(255,255,255,0.7)' },
+    'blue': { name: 'Xanh Dương Pastel', bg: '#f0f4fd', card: '#eef8ff', accent: '#b6d5ff', muted: '#6e86a6', text: '#20304b', glass: 'rgba(255,255,255,0.7)' },
+    'purple': { name: 'Tím Pastel', bg: '#f7f0fd', card: '#f0e8ff', accent: '#d5b6ff', muted: '#866ea6', text: '#30204b', glass: 'rgba(255,255,255,0.7)' },
+    'yellow': { name: 'Vàng Pastel', bg: '#fdfbf0', card: '#fffde8', accent: '#ffe9b6', muted: '#a69d6e', text: '#4b4520', glass: 'rgba(255,255,255,0.7)' }
+};
+
+function applySkin(skinName) {
+    const skin = PASTEL_SKINS[skinName];
+    if (skin) {
+        const root = document.documentElement.style;
+        root.setProperty('--bg', skin.bg);
+        root.setProperty('--card', skin.card);
+        root.setProperty('--accent', skin.accent);
+        root.setProperty('--muted', skin.muted);
+        root.setProperty('--text', skin.text);
+        root.setProperty('--glass', skin.glass);
+        // Nội dung mới theo yêu cầu của bạn:
+        // Giữ cố định thông điệp thương hiệu của bạn
+el('footerSkinInfo').innerHTML = `&mdash; Sweet Brew Manager &bull; Nơi tạo ra quán cafe của riêng bạn &mdash;`;
+    }
+}
+
+const CANDIDATE_POOL = [
+    {name:'An', skills:['make','clean'], salary: 500, id:'An', rank:'A', baseSkills: ['make', 'clean'], maxSkills: 4}, 
+    {name:'Bình', skills:['serve','orders'], salary: 400, id:'Binh', rank:'A', baseSkills: ['serve', 'orders'], maxSkills: 4},
+    {name:'Cường', skills:['make','maint'], salary: 600, id:'Cuong', rank:'A', baseSkills: ['make', 'maint'], maxSkills: 4},
+    {name:'Diễm', skills:['ads','serve'], salary: 550, id:'Diem', rank:'A', baseSkills: ['ads', 'serve'], maxSkills: 4},
+    {name:'Minh', skills:['make','clean','serve','maint'], salary: 800, id:'Minh', rank:'A', baseSkills: ['make','clean','serve','maint'], maxSkills: 4, isSpecial: true},
+    {name:'Sky', skills:['make','clean','serve','maint', 'orders'], salary: 2000, id:'Sky', rank:'S', baseSkills: ['make','clean','serve','maint', 'orders']}, 
+    {name:'Leo', skills:['make','ads','inventory','orders'], salary: 2200, id:'Leo', rank:'S', baseSkills: ['make','ads','inventory','orders']},
+    {name:'Linh', skills:['make','clean','serve','maint','ads','orders','inventory','decorate'], salary: 2500, id:'Linh', rank:'S', baseSkills: ['make','clean','serve','maint','ads','orders','inventory','decorate'], isSpecial: true}
+];
+const ALL_SKILLS = ['decorate', 'clean', 'make', 'ads', 'orders', 'inventory', 'serve', 'maint'];
+
+
+// ---------- Storage ----------
+const KEY_PREFIX = 'sbm_'; 
+
+function savePlayer(player){
+    localStorage.setItem(KEY_PREFIX + player.name, JSON.stringify(player));
+    player.lastSavedAt = Date.now();
+}
+
+function loadPlayer(name){
+    const data = localStorage.getItem(KEY_PREFIX + name);
+    if(!data) return null;
+    try{ 
+        const loadedPlayer = JSON.parse(data);
+        // Đảm bảo các trường mới tồn tại khi load save cũ
+        const defaults = defaultPlayer(name);
+        if (!loadedPlayer.recipes) loadedPlayer.recipes = defaults.recipes; 
+        if (!loadedPlayer.upgrades) {
+             loadedPlayer.upgrades = defaults.upgrades;
+        } else {
+            // FIX: Đảm bảo skin_pastel cũ được chuyển thành skin_blue_pastel theo yêu cầu
+            if (loadedPlayer.upgrades.skin_pastel === true) {
+                 if (!loadedPlayer.upgrades.skins_owned.includes('blue')) loadedPlayer.upgrades.skins_owned.push('blue');
+                 delete loadedPlayer.upgrades.skin_pastel;
+            }
+            // Ensure new upgrade properties exist
+            if (typeof loadedPlayer.upgrades.current_skin === 'undefined') loadedPlayer.upgrades.current_skin = defaults.upgrades.current_skin;
+            if (!loadedPlayer.upgrades.skins_owned || !Array.isArray(loadedPlayer.upgrades.skins_owned)) loadedPlayer.upgrades.skins_owned = defaults.upgrades.skins_owned;
+            if (typeof loadedPlayer.upgrades.recipe_slots === 'undefined') loadedPlayer.upgrades.recipe_slots = defaults.upgrades.recipe_slots;
+            if (!loadedPlayer.upgrades.active_boosters) loadedPlayer.upgrades.active_boosters = defaults.upgrades.active_boosters;
+        }
+        return loadedPlayer; 
+    } catch(e){ return null; }
+}
+
+function removePlayerData(name){ localStorage.removeItem(KEY_PREFIX + name); }
+
+// ---------- App State & UI (CẬP NHẬT updateHeader) ----------
+let PLAYER = null;
+let CURRENT_VIEW = 'tasks'; 
+const views = ['tasks','minigames','orders','inventory','history','settings'];
+
+function switchView(name){
+    views.forEach(v=> el(v).classList.add('hidden'));
+    if(el(name)) el(name).classList.remove('hidden');
+    el('loginView').classList.toggle('hidden', name!=='loginView');
+    CURRENT_VIEW = name;
+}
+
+function updateHeader() {
+    if (!PLAYER) {
+        el('hello').textContent = 'Chưa đăng nhập';
+        el('diffDisplay').textContent = 'Chế độ: ---';
+        el('diffDisplay').style.background = '#ccc'; // Màu xám khi chưa login
+        el('dayInfo').textContent = 'Ngày 0 / 30';
+        el('btnLogout').classList.add('hidden');
+        el('btnLogin').classList.remove('hidden');
+    } else {
+        // Hiển thị tên sang trọng ở góc trái
+        el('hello').innerHTML = `<span style="color: var(--muted); font-weight: 400;">Chủ quán:</span> ${PLAYER.name}`;
+        
+        // Hiển thị độ khó với màu sắc nhận diện
+        const diffConfig = {
+            'easy': { name: 'Dễ', color: '#2ecc71' },
+            'normal': { name: 'Bình thường', color: '#3498db' },
+            'hard': { name: 'Khó', color: '#e74c3c' }
+        };
+        const config = diffConfig[PLAYER.settings.difficulty] || { name: '---', color: '#ccc' };
+        
+        el('diffDisplay').textContent = `Mức: ${config.name}`;
+        el('diffDisplay').style.background = config.color;
+        
+        // Hiển thị Ngày ở góc phải to và rõ
+        el('dayInfo').textContent = `Ngày ${PLAYER.day} / 30`;
+        
+        el('btnLogout').classList.remove('hidden');
+        el('btnLogin').classList.add('hidden');
+    }
+
+    // Cập nhật stats (giữ nguyên logic gốc của bạn)
+    updateStat('stat-coin', PLAYER ? PLAYER.coin : '—', true);
+    updateStat('stat-point', PLAYER ? PLAYER.point : '—');
+    updateStat('stat-beancoin', PLAYER ? PLAYER.beancoin : '—');
+    updateStat('stat-reputation', PLAYER ? `${PLAYER.reputation} / 100` : '—');
+
+    el('dayNumber').textContent = PLAYER ? PLAYER.day : 0;
+}
+
+
+function setTasksTodayFromPool(player) {
+    const pool = [...TASK_POOL];
+    
+    // 1. Tách riêng nhóm nhiệm vụ Đào tạo (t21, t22) và nhóm nhiệm vụ Thường
+    const trainingTasks = pool.filter(t => t.id === 't21' || t.id === 't22');
+    const normalTasks = pool.filter(t => t.id !== 't21' && t.id !== 't22');
+
+    // 2. Trộn ngẫu nhiên danh sách nhiệm vụ thường
+    for (let i = normalTasks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [normalTasks[i], normalTasks[j]] = [normalTasks[j], normalTasks[i]];
+    }
+
+    // 3. Chọn ngẫu nhiên 1 nhiệm vụ Đào tạo để đảm bảo ngày nào cũng có
+    const randomTrainTask = trainingTasks[Math.floor(Math.random() * trainingTasks.length)];
+    
+    // 4. Lấy 9 nhiệm vụ thường + 1 nhiệm vụ đào tạo = 10 nhiệm vụ
+    let selected = [randomTrainTask, ...normalTasks.slice(0, 9)];
+
+    // 5. Trộn lại toàn bộ danh sách selected lần cuối để vị trí t21/t22 không bị cố định ở đầu hàng
+    for (let i = selected.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [selected[i], selected[j]] = [selected[j], selected[i]];
+    }
+
+    // Gán dữ liệu cho ngày mới
+    player.tasksToday = selected.map(t => ({ 
+        ...t, 
+        done: false, 
+        active: false, 
+        completed: false, 
+        uid: uid() 
+    }));
+}
+
+// ---------- Task UI ----------
+function renderTasks(){
+    const container = el('taskList');
+    container.innerHTML = '';
+    if(!PLAYER) { container.innerHTML = '<div class="small">Vui lòng đăng nhập để thấy nhiệm vụ.</div>'; return; }
+    
+    PLAYER.tasksToday.forEach(t=>{
+        // Logic mới cho nút "Làm" (State 1: Làm, State 1.5: Đang làm, State 2: Đã hoàn thành, State 3: Đã nhận)
+        let buttonText = 'Làm';
+        let buttonDisabled = false;
+        let claimDisabled = true;
+        let statusClass = '';
+
+        if (t.done) {
+            // State 3: Đã nhận điểm
+            buttonText = 'Đã nhận';
+            buttonDisabled = true;
+            claimDisabled = true;
+            statusClass = 'task-status-done';
+        } else if (t.completed) { 
+            // State 2: Đã hoàn thành mục tiêu minigame, chờ nhận điểm
+            buttonText = 'Đã hoàn thành'; 
+            buttonDisabled = true; // Không cho phép bấm lại nút 'Làm'
+            claimDisabled = false; // BẬT nút 'Nhận'
+            statusClass = 'task-status-ready';
+        } else if (t.active) {
+            // State 1.5: Đang active (đã bấm làm và chuyển sang minigame)
+             buttonDisabled = true; // Vô hiệu hóa khi đang làm
+             buttonText = 'Đang làm...';
+        }
+        // State 1: Mặc định là 'Làm'
+
+        const div = document.createElement('div'); 
+        div.className=`task ${statusClass}`;
+        
+        div.innerHTML = `
+            <div>
+                <div style="font-weight:700">${t.title} ${t.diff==='special' ? '🌟' : ''}</div>
+                <div class="small">${t.desc}</div>
+            </div>
+            <div style="text-align:right">
+                <div class="badge">${DIFF_POINTS[t.diff]||20} pts</div>
+                <div style="margin-top:6px">
+                    <button class="btn-ghost" data-action="go" data-uid="${t.uid}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>
+                    <button class="btn-ghost" data-action="claim" data-uid="${t.uid}" ${claimDisabled ? 'disabled' : ''}>Nhận</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    // attach handlers
+    container.querySelectorAll('button').forEach(b=>{
+        b.addEventListener('click', (e)=>{
+            const action = b.dataset.action; const uid = b.dataset.uid;
+            const t = PLAYER.tasksToday.find(x=>x.uid===uid);
+            if(!t) return;
+            if(action==='go'){ 
+                // Chỉ cho phép bấm 'Làm' (go) nếu nhiệm vụ chưa hoàn thành mục tiêu và chưa nhận điểm
+                if(!t.completed && !t.done) {
+                    PLAYER.tasksToday.forEach(task => task.active = false); 
+                    t.active = true;
+                    openModuleForTask(t); 
+                    savePlayer(PLAYER); // Lưu trạng thái active
+                }
+            }
+            if(action==='claim'){ 
+                // Chỉ cho phép bấm 'Nhận' (claim) nếu đã hoàn thành mục tiêu nhưng chưa nhận điểm
+                if(t.completed && !t.done) { 
+                    claimTask(t); 
+                } else if (t.done) {
+                    toast('Nhiệm vụ này đã hoàn thành và nhận điểm.', 2000);
+                } else {
+                    toast('Bạn chưa hoàn thành mục tiêu nhiệm vụ.', 2000);
+                }
+            }
+        });
+    });
+}
+
+function openModuleForTask(task) {
+    // 1. Bản đồ ánh xạ Module -> ID của phần tử tương ứng
+    const config = {
+        'decorate': 'decorateMini',
+        'clean': 'cleanMini',
+        'make': 'makeMini',
+        'ads': 'adsMini',
+        'orders': 'ordersList',
+        'inventory': 'invGame',
+        'serve': 'serveMini',
+        'staff': 'staffMini',
+        'maint': 'maintMini'
+    };
+
+    const targetId = config[task.module];
+    const targetEl = el(targetId);
+
+    // 2. Chuyển view
+    if (task.module === 'orders') {
+        switchView('orders');
+    } else if (task.module === 'inventory') {
+        switchView('inventory');
+    } else {
+        switchView('minigames');
+    }
+
+    if (targetEl) {
+        // 3. Xử lý logic render đặc biệt cho từng ID cụ thể
+        if (task.module === 'decorate') {
+            renderDecorate(task.id === 't20' ? 'background' : 'normal');
+        } else if (task.module === 'make') {
+            if (task.id === 't18') renderMakeMini('menu_create');
+            else if (task.id === 't12') renderMakeMini('special');
+            else renderMakeMini('normal');
+        }
+
+        // 4. Thực hiện cuộn và tạo hiệu ứng viền
+        setTimeout(() => {
+            // Tìm thẻ cha có class 'card' để tô viền cho đẹp toàn bộ khu vực
+            const cardBox = targetEl.closest('.card') || targetEl;
+
+            // Xóa viền cũ nếu có ở các khu vực khác
+            document.querySelectorAll('.highlight-task-active').forEach(e => e.classList.remove('highlight-task-active'));
+
+            // Thêm viền hồng mới
+            cardBox.classList.add('highlight-task-active');
+
+            // Cuộn mượt mà vào chính giữa màn hình
+            cardBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Tự động xóa viền sau 4 giây để không gây rối mắt
+            setTimeout(() => cardBox.classList.remove('highlight-task-active'), 4000);
+        }, 150);
+    }
+
+    // 5. Hiển thị thông báo
+    toast('Nhiệm vụ: ' + task.title + '. Yêu cầu: ' + task.desc);
+}
+
+function claimTask(task){
+    const pts = DIFF_POINTS[task.diff] || 20;
+    
+    // NEW: Áp dụng Booster Point
+    let pointMultiplier = 1;
+    const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+    if (pointBoost) {
+        pointMultiplier = 1.5; // Giả sử Point Booster tăng 50%
+    }
+    const finalPts = Math.round(pts * pointMultiplier);
+    PLAYER.point += finalPts; 
+    
+    task.done = true; 
+    task.active = false; 
+
+    PLAYER.taskHistory.push({taskId:task.id, title:`[Hoàn tất] ${task.title}`, pts:finalPts, at:Date.now()});
+    savePlayer(PLAYER);
+    updateHeader(); renderTasks(); renderHistory();
+    toast(`Nhận ${finalPts} point! Nhiệm vụ hoàn tất.`);
+    beep(660,0.06);
+}
+
+function completeActiveTask(module, successScore){
+    const activeTask = PLAYER.tasksToday.find(t => t.module === module && t.active && !t.done);
+    if (activeTask) {
+        const requiredScore = activeTask.diff === 'easy' ? 1 : (activeTask.diff === 'medium' ? 2 : (activeTask.diff === 'hard' ? 3 : 4));
+        
+        if (successScore >= requiredScore) {
+            activeTask.active = false; 
+            activeTask.completed = true; 
+            savePlayer(PLAYER);
+            renderTasks(); 
+            toast(`Đã hoàn thành mục tiêu nhiệm vụ: ${activeTask.title}. Nhấn 'Nhận' điểm!`, 4000);
+            return true;
+        } else {
+            activeTask.active = false; 
+            savePlayer(PLAYER);
+            renderTasks();
+            toast(`Chưa đạt yêu cầu nhiệm vụ (${successScore}/${requiredScore}). Hãy thử lại!`, 3000);
+        }
+    }
+    return false;
+}
+
+// ---------- Staff Automation Handler (NEW: Kích hoạt thủ công) ----------
+function startStaffWork(){
+    if (!PLAYER || PLAYER.staff.length === 0) {
+        toast("Không có nhân viên nào để bắt đầu làm việc.", 3000);
+        return;
+    }
+
+    let automationLog = [];
+    const staffList = PLAYER.staff;
+
+    // 1. Tự động làm Order Online (Cho tất cả staff có skill 'orders')
+    // Lấy tất cả nhân viên có skill 'orders'
+    const orderStaff = staffList.filter(s => s.skills.includes('orders')); 
+    
+    if (orderStaff.length > 0) {
+        let ordersDone = 0;
+        let ordersToFulfill = [...PLAYER.orders];
+        
+        // Mỗi nhân viên chỉ làm được 1-3 order tùy rank
+        orderStaff.forEach(staff => {
+            const maxOrders = staff.rank.includes('S') ? 3 : 1; 
+            for(let i=0; i < maxOrders && ordersToFulfill.length > 0; i++) {
+                const ord = ordersToFulfill.shift(); 
+                const ordIndex = PLAYER.orders.findIndex(o => o.id === ord.id);
+                
+                if (ordIndex !== -1 && canFulfillOrder(ord)) {
+                    PLAYER.orders.splice(ordIndex, 1); // Xóa khỏi queue
+                    fulfillOrder(ord);
+                    PLAYER.coin += 100; 
+                    PLAYER.reputation = Math.min(100, PLAYER.reputation + 1);
+                    PLAYER.orderHistory.push({id:ord.id, type:ord.type + ' (Auto ' + staff.rank + ')', coin:100, at:Date.now()});
+                    ordersDone++;
+                }
+            }
+        });
+        if(ordersDone > 0) automationLog.push(`Staff đã xử lý tự động ${ordersDone} order.`);
+    }
+
+    // 2. Tự động làm nhiệm vụ (chỉ các nhiệm vụ chưa hoàn thành mục tiêu)
+    PLAYER.tasksToday.forEach(t => {
+        // Chỉ cần 1 nhân viên có skill tương ứng là hoàn thành mục tiêu
+        const performingStaff = staffList.find(s => s.skills.includes(t.module));
+        
+        if (performingStaff && !t.done && !t.completed && t.module !== 'orders' && t.module !== 'staff') { // Loại trừ nhiệm vụ Staff
+            
+            // Giả định Staff Rank A làm được Easy/Medium (score 2), S/A+ làm được Hard (score 3)
+            let maxStaffScore = 2; // Default A-rank
+            if (performingStaff.rank.includes('S')) maxStaffScore = 3;
+            if (performingStaff.rank.includes('+')) maxStaffScore = 3; // A+ cũng được 3 điểm
+
+            let required = t.diff === 'easy' ? 1 : (t.diff === 'medium' ? 2 : (t.diff === 'hard' ? 3 : 4));
+            
+            // Tránh Staff làm nhiệm vụ Siêu khó (Trừ S/A+ với score 3)
+            if (t.diff === 'special' && maxStaffScore < 4) return; 
+            
+            // Nếu có thể hoàn thành mục tiêu yêu cầu
+            if (maxStaffScore >= required) { 
+                t.completed = true;
+                t.active = false; 
+                automationLog.push(`Staff ${performingStaff.name} (${performingStaff.rank}) đã hoàn thành: ${t.title}.`);
+            }
+        }
+    });
+
+    savePlayer(PLAYER);
+    updateHeader();
+    renderTasks();
+    renderOrders();
+    
+    if (automationLog.length === 0) {
+        toast("Nhân viên không tìm thấy công việc phù hợp hoặc không đủ nguyên liệu.", 3000);
+    } else {
+        toast("Hoàn thành công việc: " + automationLog.join('; '), 6000);
+    }
+}
+
+// NEW: Xử lý sự kiện ngẫu nhiên
+function processRandomEvent(player) {
+    // 1. QUAN TRỌNG: Luôn xóa sự kiện cũ của ngày hôm trước để tránh bị cộng dồn vĩnh viễn
+    player.current_event = null; 
+
+    // 50% cơ hội xảy ra sự kiện
+    if (Math.random() < 0.5) return null; 
+
+    const events = [
+        { 
+            id: 'rush_hour', 
+            title: 'Giờ cao điểm bất ngờ! 🚀', 
+            effect: { coinMultiplier: 2, repGain: 10 }, 
+            msg: 'Doanh thu Order Online ngày hôm nay x2!' 
+        },
+        { 
+            id: 'machine_break', 
+            title: 'Máy pha cà phê hỏng đột xuất! ⚙️', 
+            effect: { maintNeeded: true }, 
+            msg: 'Cần sửa máy ngay lập tức, nếu không uy tín giảm 10!' 
+        },
+        { 
+            id: 'local_news', 
+            title: 'Báo địa phương khen ngợi! 📰', 
+            effect: { repGain: 15 }, 
+            msg: 'Uy tín tăng mạnh, thu hút thêm khách!' 
+        },
+    ];
+    
+    const event = events[Math.floor(Math.random() * events.length)];
+    
+    // 2. Gán sự kiện mới vào player object để hệ thống renderOrders có thể đọc được
+    player.current_event = event;
+
+    // 3. Xử lý các hiệu ứng tức thì khi sự kiện vừa xảy ra
+    if (event.id === 'machine_break') {
+        player.upgrades.maint_status = 'broken';
+        toast(event.msg, 6000);
+    }
+
+    if (event.effect && event.effect.repGain) {
+        player.reputation = Math.min(100, player.reputation + event.effect.repGain);
+    }
+    
+    return event;
+}
+
+// ---------- Day cycle (With Staff Automation & Payroll) ----------
+// Thêm tham số isAutoMode vào ngoặc đơn
+function nextDay(isAutoMode = false) {
+    if(!PLAYER) return;
+    if(PLAYER.day >= 30){ 
+        PLAYER.day = 0; 
+        toast('Hoàn thành 30 ngày! Bắt đầu lại (Giữ tài sản).'); 
+    }
+    
+    const isPayrollDay = (PLAYER.day % 3 === 0);
+    let totalStaffSalary = 0;
+
+    if (isPayrollDay) {
+        PLAYER.staff.forEach(s => {
+            totalStaffSalary += s.salary;
+        });
+        PLAYER.coin -= totalStaffSalary;
+        PLAYER.taskHistory.push({taskId:'staff_salary', title:`Lương nhân viên 3 ngày (${PLAYER.staff.length} người)`, coin:-totalStaffSalary, at:Date.now()});
+    }
+    
+    // SỬA TẠI ĐÂY: Gán sự kiện vào PLAYER để lưu trữ
+    const event = processRandomEvent(PLAYER);
+    PLAYER.current_event = event; 
+
+    if (event && event.effect.repGain) {
+        PLAYER.reputation = Math.min(100, PLAYER.reputation + event.effect.repGain);
+    }
+    
+    if (PLAYER.upgrades.maint_status === 'broken') {
+        PLAYER.reputation = Math.max(0, PLAYER.reputation - 10);
+        PLAYER.taskHistory.push({taskId:'maint_penalty', title:`Máy hỏng: -10 Uy tín`, at:Date.now()});
+    }
+
+    PLAYER.day += 1;
+    setTasksTodayFromPool(PLAYER); 
+    
+    const DAILY_EXPENSE = 2000;
+    PLAYER.coin -= DAILY_EXPENSE;
+    PLAYER.taskHistory.push({taskId:'daily_expense', title:`Chi phí Vận hành Ngày ${PLAYER.day}`, coin:-DAILY_EXPENSE, at:Date.now()});
+    
+    const dailyReward = 200 + Math.floor(Math.random()*300);
+    PLAYER.coin += dailyReward;
+    PLAYER.reputation = Math.min(100, PLAYER.reputation + 1);
+    PLAYER.taskHistory.push({taskId:'daily_reward', title:`Daily Reward`, pts:0, coin:dailyReward, at:Date.now()});
+    
+    if(PLAYER.coin < 0){
+        alert(`Game Over! Ngày ${PLAYER.day}. Quán cà phê đã hết tiền. Thử lại!`);
+        PLAYER.day = 30; 
+        toast('Phá sản! Không thể tiếp tục.');
+        savePlayer(PLAYER); updateHeader(); return;
+    }
+
+    savePlayer(PLAYER); // Bây giờ PLAYER đã chứa current_event mới
+    updateHeader(); 
+    renderTasks(); 
+    renderHistory();
+    renderOrders(); // Cập nhật lại giao diện order để thấy giá x2 ngay
+    
+    let payrollMsg = isPayrollDay ? ` - Lương: ${totalStaffSalary.toLocaleString()} ₫` : '';
+    let eventMsg = event ? ` | ${event.title}` : '';
+    const prefix = isAutoMode ? "Hệ thống: Đã đến 0h! " : "";
+
+    toast(`${prefix}Chuyển sang ngày mới! ${payrollMsg} - Chi phí: ${DAILY_EXPENSE} ₫ ${eventMsg}`, 8000);
+}
+
+// NEW: Kiểm tra và lọc Booster hết hạn
+function checkAndFilterBoosters() {
+    if (!PLAYER) return;
+    const now = Date.now();
+    const activeBoosters = PLAYER.upgrades.active_boosters.filter(b => b.expiry > now);
+    
+    if (activeBoosters.length < PLAYER.upgrades.active_boosters.length) {
+        PLAYER.upgrades.active_boosters = activeBoosters;
+        savePlayer(PLAYER);
+        renderShops(); // Cập nhật trạng thái Booster trong Shop
+    }
+}
+
+
+// ---------- Orders subsystem (Updated) ----------
+
+function getAvailableOrderTypes(){
+    let availableTypes = [...BASE_ORDER_TYPES];
+    // Thêm các công thức tự tạo (nếu có) vào pool order
+    PLAYER.recipes.forEach(r => {
+        if (!availableTypes.includes(r.name)) availableTypes.push(r.name);
+    });
+    return availableTypes;
+}
+
+function makeOrder(){
+    const availableTypes = getAvailableOrderTypes();
+    return {
+        id: uid(),
+        type: availableTypes[Math.floor(Math.random()*availableTypes.length)],
+        toppings: (Math.random()>0.6) ? ['Bubble'] : [],
+        qty: 1 + Math.floor(Math.random()*2),
+        createdAt: Date.now()
+    }
+}
+function ensureInitialOrders(){
+    if(!PLAYER) return;
+    if(!PLAYER.orders || PLAYER.orders.length===0){
+        for(let i=0;i<3;i++) PLAYER.orders.push(makeOrder());
+        PLAYER.lastOrderGenAt = Date.now();
+        savePlayer(PLAYER);
+    }
+}
+function generateOrdersPeriodic(){
+    if(!PLAYER) return;
+    const now = Date.now();
+    const orderGenRate = PLAYER.reputation / 100; 
+    if(!PLAYER.lastOrderGenAt) PLAYER.lastOrderGenAt = 0;
+    
+    if(now - PLAYER.lastOrderGenAt >= 300000 && PLAYER.orders.length < 12 && Math.random() < orderGenRate){
+        const canAdd = Math.min(3, 12 - PLAYER.orders.length);
+        for(let i=0;i<canAdd;i++) PLAYER.orders.push(makeOrder());
+        PLAYER.lastOrderGenAt = now;
+        savePlayer(PLAYER); renderOrders();
+        toast(`Đã thêm ${canAdd} order mới`);
+    }
+}
+
+function getDynamicCosts(){
+    // Tạo bản sao từ các món cơ bản cố định
+    const dynamicCosts = { ...BASE_ORDER_COSTS };
+    
+    // Quét qua danh sách recipes của người chơi (bao gồm Signature Blend và món tự tạo)
+    PLAYER.recipes.forEach(r => {
+        // Khởi tạo chi phí cho món này (mặc định tốn 1 ly)
+        let costs = { cups: 1 };
+        
+        r.steps.forEach(step => {
+            // Logic quy đổi Hành động -> Nguyên liệu
+            if (step === 'Grind' || step === 'Pull' || step === 'Tamp') {
+                costs.coffeeBeans = (costs.coffeeBeans || 0) + 1;
+            } 
+            else if (step === 'Steam Milk' || step === 'Froth') {
+                costs.milk = (costs.milk || 0) + 1;
+            } 
+            else if (step === 'Sugar') {
+                costs.sugar = (costs.sugar || 0) + 1;
+            }
+            // Thêm logic cho các nguyên liệu nâng cao (Chocolate, Caramel, v.v.)
+            else if (NEW_INGREDIENTS.includes(step)) {
+                // Chuyển chữ cái đầu thành viết thường để khớp với key trong PLAYER.inventory
+                // VD: 'Chocolate' -> 'chocolate'
+                const invKey = step.charAt(0).toLowerCase() + step.slice(1);
+                costs[invKey] = (costs[invKey] || 0) + 1;
+            }
+        });
+        
+        // Ghi đè hoặc thêm mới vào danh sách tính toán chi phí
+        dynamicCosts[r.name] = costs;
+    });
+    
+    return dynamicCosts;
+}
+
+function canFulfillOrder(order){
+    const dynamicCosts = getDynamicCosts();
+    const costs = dynamicCosts[order.type] || {};
+    let hasStock = true;
+    for(let item in costs){
+        if(PLAYER.inventory[item] < costs[item] * order.qty){ hasStock = false; break; }
+    }
+    order.toppings.forEach(t=>{
+        const toppingCost = TOPPING_COST[t] || {};
+        for(let item in toppingCost){
+            if(PLAYER.inventory[item] < toppingCost[item] * order.qty){ hasStock = false; }
+        }
+    });
+    return hasStock;
+}
+
+function fulfillOrder(order){
+    const dynamicCosts = getDynamicCosts();
+    const costs = dynamicCosts[order.type] || {};
+    for(let item in costs){
+        PLAYER.inventory[item] -= costs[item] * order.qty;
+    }
+    order.toppings.forEach(t=>{
+        const toppingCost = TOPPING_COST[t] || {};
+        for(let item in toppingCost){
+            PLAYER.inventory[item] -= toppingCost[item] * order.qty;
+        }
+    });
+}
+
+function renderOrders() {
+    if (!PLAYER) return;
+    el('ordersCount').textContent = PLAYER.orders.length;
+    const list = el('ordersList');
+    list.innerHTML = '';
+
+    // --- 1. XÁC ĐỊNH HỆ SỐ NHÂN (LOGIC CỘNG DỒN) ---
+    // Gốc là 1 (100% doanh thu)
+    let coinMultiplier = 1;
+
+    // Nếu có sự kiện Rush Hour: + thêm 100% (x2)
+    if (PLAYER.current_event && PLAYER.current_event.id === 'rush_hour') {
+        coinMultiplier += 1; 
+    }
+
+    // Nếu có Booster: + thêm 50% (0.5)
+    const coinBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'coin_booster' && b.expiry > Date.now());
+    if (coinBoost) {
+        coinMultiplier += 0.5;
+    }
+    // Kết quả: Nếu có cả 2, multiplier = 1 + 1 + 0.5 = 2.5
+
+    // Logic Point tương tự nếu bạn muốn cộng dồn
+    let pointMultiplier = 1;
+    const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+    if (pointBoost) {
+        pointMultiplier += 0.5;
+    }
+
+    PLAYER.orders.forEach(o => {
+        const hasStock = canFulfillOrder(o);
+        const div = document.createElement('div');
+        div.className = 'order';
+        
+        // --- HIỆU ỨNG HÌNH ẢNH KHI CÓ RUSH HOUR ---
+        if (PLAYER.current_event && PLAYER.current_event.id === 'rush_hour') {
+            div.style.border = "2px solid #ffcc00";
+            div.style.background = "linear-gradient(to right, #fff, #fffde6)";
+        }
+        
+        div.dataset.stock = hasStock ? 'true' : 'false';
+
+        const revenue = 400 * o.qty + (o.toppings.length * 100); 
+        const deliveryFee = 200; 
+        const netCoinAfterFee = Math.round((revenue - deliveryFee) * coinMultiplier);
+        
+        const basePts = 40 + (10 * o.qty) + (o.toppings.length * 5);
+        const finalPts = Math.round(basePts * pointMultiplier);
+
+        div.innerHTML = `
+            <div>
+                <div style="font-weight:700">${o.type} ×${o.qty}</div>
+                <div class="small">
+                    Toppings: ${o.toppings.join(', ') || '—'}<br>
+                    <span style="color: #d63031;">Phí VC: -${deliveryFee} ₫</span> | 
+                    <span style="color: green; font-weight: bold;">Thực nhận: +${netCoinAfterFee} ₫</span> 
+                    ${coinMultiplier > 1 ? `<span style="font-size:10px; color:#ff4d94; font-weight:bold;"> (x${coinMultiplier} ✨)</span>` : ''}
+                    <br><span style="color: #e67e22; font-weight: bold;">Điểm: +${finalPts} pts</span>
+                    ${pointMultiplier > 1 ? `<span style="font-size:10px; color:#ff4d94; font-weight:bold;"> (x${pointMultiplier} ✨)</span>` : ''}
+                </div>
+            </div>
+            <div>
+                <button class="btn-ghost" data-id="${o.id}" ${hasStock ? '' : 'disabled'}>
+                    ${hasStock ? 'Pha & Giao' : 'Hết Nguyên liệu'}
+                </button>
+            </div>`;
+        list.appendChild(div);
+    });
+
+    // Phần xử lý sự kiện Click giữ nguyên như code cũ của bạn
+    list.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => {
+            const id = b.dataset.id;
+            const idx = PLAYER.orders.findIndex(x => x.id === id);
+            if (idx >= 0) {
+                const ord = PLAYER.orders.splice(idx, 1)[0];
+                if (canFulfillOrder(ord)) {
+                    fulfillOrder(ord);
+                    const revenue = 400 * ord.qty + (ord.toppings.length * 100);
+                    const deliveryFee = 200;
+                    
+                    // Sử dụng multiplier đã tính ở trên
+                    const netCoinToGain = Math.round((revenue - deliveryFee) * coinMultiplier);
+                    const basePts = 40 + (10 * ord.qty) + (ord.toppings.length * 5);
+                    const ptsToGain = Math.round(basePts * pointMultiplier);
+
+                    PLAYER.coin -= deliveryFee;
+                    PLAYER.coin += netCoinToGain;
+                    PLAYER.point += ptsToGain;
+                    PLAYER.reputation = Math.min(100, PLAYER.reputation + ord.qty);
+
+                    PLAYER.orderHistory.push({
+                        id: ord.id,
+                        type: ord.type,
+                        pts: ptsToGain,
+                        coin: netCoinToGain, 
+                        at: Date.now()
+                    });
+
+                    toast(`Giao đơn thành công! +${netCoinToGain}₫ & +${ptsToGain}pts`);
+                    beep(880, 0.06);
+
+                    const task5 = PLAYER.tasksToday.find(t => t.id === 't5' && !t.done);
+                    if (task5) {
+                        const ordersCompleted = PLAYER.orderHistory.filter(h => h.at > (Date.now() - 86400000)).length;
+                        if (ordersCompleted >= 3) {
+                            completeActiveTask('orders', 3);
+                        }
+                    }
+                } else {
+                    PLAYER.reputation = Math.max(0, PLAYER.reputation - 5);
+                    toast('Lỗi hệ thống: Cần Nguyên liệu.', 4000);
+                }
+                savePlayer(PLAYER);
+                renderOrders();
+                renderHistory();
+                updateHeader();
+            }
+        });
+    });
+}
+// ---------- Minigame Implementations (Updated to use 'completed' logic) ----------
+function renderInventoryGame(){
+    const container = el('invGame'); container.innerHTML = '';
+    if(!PLAYER) { container.innerHTML = '<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    const items = ['coffeeBeans','milk','sugar','cups'];
+    const icons = { coffeeBeans: '☕️', milk: '🥛', sugar: '🍬', cups: '🥤' }; // Bảng icon cho sạch code
+
+    const frag = document.createElement('div');
+    frag.innerHTML = `
+        <div class="small">Kéo nguyên liệu vào kệ tương ứng</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+            <div style="flex:1">
+                <div class="dropzone" id="shelf" style="min-height:100px; border:2px dashed var(--accent)"></div>
+            </div>
+            <div style="width:120px;" id="inventoryItems">
+                ${items.map(k => `
+                    <div class="draggable" draggable="true" data-item="${k}">
+                        <span>${icons[k]}</span> (${PLAYER.inventory[k]||0})
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div style="margin-top:8px"><button id="invCheck" class="btn-ghost">Kiểm kê & Nhận</button></div>
+    `;
+    container.appendChild(frag);
+
+    const draggables = container.querySelectorAll('.draggable');
+    draggables.forEach(d => {
+        d.addEventListener('dragstart', e => { 
+            // Sử dụng 'text' để tương thích tốt nhất trên iOS/Android
+            e.dataTransfer.setData('text', d.dataset.item); 
+            d.style.opacity = '0.5';
+        });
+        d.addEventListener('dragend', () => d.style.opacity = '1');
+    });
+
+    const shelf = container.querySelector('#shelf');
+    shelf.addEventListener('dragover', e => {
+        e.preventDefault(); // Bắt buộc phải có để cho phép thả
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    shelf.addEventListener('drop', e => {
+        e.preventDefault();
+        const it = e.dataTransfer.getData('text'); // Lấy dữ liệu an toàn
+        if (!it) return;
+
+        const node = document.createElement('div'); 
+        node.className = 'draggable'; 
+        // Logic hiển thị icon và tên
+        const displayIcon = icons[it] || '';
+        node.innerHTML = `${it} ${displayIcon}`;
+        
+        shelf.appendChild(node);
+        beep(660, 0.05);
+    });
+
+    // Phần xử lý nút invCheck giữ nguyên logic của bạn
+    el('invCheck').addEventListener('click', ()=>{
+        const placedItems = [...shelf.querySelectorAll('.draggable')].map(n => n.innerText.split(' ')[0]).filter(Boolean);
+        const uniquePlacedItems = new Set(placedItems);
+        
+        let pts = uniquePlacedItems.size * 15; 
+        let score = 0; 
+        
+        const coffeeCount = placedItems.filter(item => item === 'coffeeBeans').length;
+        
+        if (uniquePlacedItems.size === items.length) {
+            pts += 20; 
+            score = 3; 
+        } else if (coffeeCount >= 5) {
+             pts += 10;
+             score = 2; 
+        } else if (uniquePlacedItems.size >= 2) {
+            score = 1;
+        }
+
+        if(score > 0) completeActiveTask('inventory', score);
+        PLAYER.point += pts;
+        PLAYER.taskHistory.push({taskId:'inv_check', title:'Kiểm kho', pts:pts, at:Date.now()});
+        savePlayer(PLAYER); updateHeader(); renderHistory();
+        toast(`Kiểm kê xong +${pts} point.`);
+        renderInventoryGame(); // Reset game
+    });
+}
+function renderDecorate(mode = 'normal'){
+    const container = el('decorateMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    // Bảng ánh xạ từ mã sang Icon để hiển thị gọn gàng
+    const decoIcons = {
+        'chair': '🪑', 'table': '🪚', 'plant': '🌱', 'lamp': '💡',
+        'wreath': '🌸', 'painting': '🖼️', 'statue': '🗿', 'candle': '🕯️'
+    };
+
+    container.innerHTML = `
+        <div style="font-weight:700; margin-bottom: 8px">Trang trí Nội thất (T1, T10)</div>
+        <div class="small">Kéo đồ vật vào lưới 3x3. Sắp xếp đẹp sẽ có bonus.</div>
+        <div style="display:flex;gap:8px;margin-top:8px; ${mode === 'background' ? 'filter: brightness(0.5); pointer-events: none;' : ''}">
+            <div style="flex:1">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="grid"></div>
+            </div>
+            <div style="width:120px;">
+                <div class="draggable" draggable="true" data-deco="chair">Ghế 🪑</div>
+                <div class="draggable" draggable="true" data-deco="table">Bàn 🪚</div>
+                <div class="draggable" draggable="true" data-deco="plant">Cây 🌱</div>
+                <div class="draggable" draggable="true" data-deco="lamp">Đèn 💡</div>
+                <div class="draggable" draggable="true" data-deco="wreath">Vòng Hoa 🌸</div>
+                <div class="draggable" draggable="true" data-deco="painting">Tranh 🖼️</div>
+                <div class="draggable" draggable="true" data-deco="statue">Tượng 🗿</div>
+                <div class="draggable" draggable="true" data-deco="candle">Nến 🕯️</div>
+            </div>
+        </div>
+        <div style="margin-top:8px"><button id="decorateCheck" class="btn-ghost" ${mode === 'background' ? 'disabled' : ''}>Hoàn thành bố trí</button></div>
+
+        <div style="font-weight:700; margin-top: 15px; margin-bottom: 8px">Thiết kế Background Livestream (T20)</div>
+        <div class="small">Yêu cầu T20: Ánh sáng **Mềm**, Góc **Close-up**, Đạo cụ **Sách**.</div>
+        <div id="backgroundDesign">
+            <select id="light"><option>Mềm</option><option>Sắc nét</option><option>Tối</option></select>
+            <select id="angle"><option>Toàn cảnh</option><option>Góc thấp</option><option>Close-up</option></select>
+            <select id="props"><option>Cây cảnh</option><option>Sách</option><option>Đồ ăn</option></select>
+            <button id="bgCheck" class="btn-ghost" style="margin-top: 8px" ${mode === 'normal' ? 'disabled' : ''}>Kiểm tra Background</button>
+        </div>
+    `;
+
+    const grid = container.querySelector('#grid');
+    for(let i=0;i<9;i++){ 
+        const c=document.createElement('div'); 
+        c.className='dropzone'; 
+        c.style.cssText = 'min-height:50px; display:flex; align-items:center; justify-content:center; font-size:24px; background:rgba(255,255,255,0.5); border-radius:8px;';
+        c.dataset.slot=i; 
+        grid.appendChild(c); 
+    }
+
+    container.querySelectorAll('.draggable').forEach(d=>{
+        d.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', d.dataset.deco));
+    });
+
+   // Tìm đoạn xử lý drop trong renderDecorate
+grid.querySelectorAll('.dropzone').forEach(zone => {
+    zone.addEventListener('dragover', e => e.preventDefault());
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const tag = e.dataTransfer.getData('text'); 
+        if(!tag) return;
+
+        zone.innerHTML = decoIcons[tag] || '❓'; // Dùng innerHTML cho sạch
+        zone.dataset.item = tag; 
+        zone.style.background = '#fff';
+        beep(740, 0.04);
+    });
+});
+
+    // Logic T1, T10
+el('decorateCheck').addEventListener('click', () => {
+    // 1. Lấy tất cả các ô trong lưới
+    const zones = grid.querySelectorAll('.dropzone');
+    
+    // 2. Thu thập dữ liệu vật phẩm hiện có
+    const placed = [...zones].map(d => d.dataset.item).filter(Boolean);
+    
+    // Kiểm tra nếu không có vật phẩm nào thì không cho tính điểm
+    if (placed.length === 0) {
+        toast("Vui lòng trang trí trước khi kiểm tra!");
+        return;
+    }
+
+    const uniqueTypes = new Set(placed);
+    let pts = placed.length * 8;
+    let repChange = 0;
+    let score = 0;
+
+    const hasTable = placed.includes('table');
+    const hasPlant = placed.includes('plant');
+    const totalItems = placed.length;
+
+    if (hasTable && hasPlant) score = 1;
+    if (totalItems >= 3 && uniqueTypes.size >= 3) {
+        pts += 20;
+        repChange = 5;
+        score = 3;
+    } else if (hasTable && hasPlant) {
+        pts += 10;
+        repChange = 2;
+    }
+
+    if (score > 0) completeActiveTask('decorate', score);
+
+    // Lưu điểm và lịch sử
+    PLAYER.point += pts;
+    PLAYER.reputation = Math.min(100, PLAYER.reputation + repChange);
+    PLAYER.taskHistory.push({ taskId: 'decorate', title: 'Trang trí', pts: pts, at: Date.now() });
+    savePlayer(PLAYER); 
+    updateHeader(); 
+    renderHistory();
+    
+    toast(`Bố trí xong +${pts} point. Mỹ quan: ${score}`);
+
+    // --- PHẦN QUAN TRỌNG: RESET LƯỚI SAU KHI XONG ---
+    zones.forEach(zone => {
+        zone.innerHTML = ''; // Xóa icon hiển thị
+        delete zone.dataset.item; // Xóa dữ liệu vật phẩm để không bị tính điểm lần sau
+        zone.style.background = 'rgba(255,255,255,0.5)'; // Trả về màu nền mặc định
+    });
+    
+    beep(440, 0.1); // Tiếng kêu báo hiệu hoàn thành
+});
+
+    // Logic T20 (Design Background) giữ nguyên như cũ...
+    el('bgCheck').addEventListener('click', () => {
+        const light = el('light').value;
+        const angle = el('angle').value;
+        const props = el('props').value;
+        let bgScore = 0;
+        if (light === 'Mềm' && angle === 'Close-up' && props === 'Sách') {
+            bgScore = 4;
+        } else if (light === 'Mềm' && angle !== 'Toàn cảnh') {
+             bgScore = 2;
+        } else {
+             bgScore = 1;
+        }
+        if (bgScore > 0) completeActiveTask('decorate', bgScore);
+        PLAYER.point += bgScore * 10;
+        PLAYER.reputation = Math.min(100, PLAYER.reputation + bgScore);
+        savePlayer(PLAYER); updateHeader(); renderHistory();
+        toast(`Background: ${bgScore} điểm chất lượng. +${bgScore * 10} point.`);
+    });
+}
+function renderCleanMini(){
+    const container = el('cleanMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    container.innerHTML = `
+        <div class="small">Click nhanh để dọn sạch. Tốc độ quyết định điểm!</div>
+        <div id="cleanArea" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px; min-height: 100px;"></div>
+        <div style="margin-top:8px"><button id="startClean" class="btn-ghost">Bắt đầu</button></div>
+    `;
+    
+    const area = el('cleanArea');
+    let targetCount = 10; 
+    let hits = 0; 
+    let running = false; 
+    let timer; 
+    let start;
+
+    // Hàm xử lý kết thúc và tính điểm ngay lập tức
+    function finishGame() {
+        if (!running) return;
+        running = false;
+        clearTimeout(timer); // Hủy đếm ngược 12s nếu dọn xong sớm
+
+        const timeSpent = (Date.now() - start) / 1000;
+        let pts = Math.max(0, Math.round((hits / targetCount) * 100 - timeSpent * 2));
+        
+        const cleanRatio = hits / targetCount;
+        let repChange = 0;
+        let score = 0;
+
+        if (cleanRatio >= 1 && timeSpent < 10) { repChange = 5; score = 3; } 
+        else if (cleanRatio >= 0.8) { repChange = 3; score = 2; }
+        else if (cleanRatio < 0.4) { repChange = -5; }
+        
+        if (score > 0) completeActiveTask('clean', score);
+
+        PLAYER.point += pts;
+        PLAYER.reputation = Math.min(100, Math.max(0, PLAYER.reputation + repChange));
+        
+        PLAYER.taskHistory.push({taskId:'clean', title:'Dọn bàn', pts:pts, at:Date.now()});
+        savePlayer(PLAYER); updateHeader(); renderHistory();
+        
+        toast(`Dọn xong: ${hits}/${targetCount}. +${pts} point. Tốc độ: ${timeSpent.toFixed(2)}s`);
+    }
+
+    function spawnDust(n){ 
+        area.innerHTML = ''; 
+        for(let i=0; i<n; i++){ 
+            const d = document.createElement('div'); 
+            d.className = 'draggable'; 
+            d.textContent = '💥'; 
+            d.style.fontSize = '20px'; 
+            d.style.padding = '10px'; 
+            d.style.cursor = 'pointer'; 
+            area.appendChild(d); 
+            
+            d.addEventListener('click', function(){
+                if(!running) return;
+                hits++; 
+                this.remove(); 
+                beep(880, 0.03);
+                
+                // NẾU DỌN XONG HẾT THÌ KẾT THÚC NGAY
+                if (hits >= targetCount) {
+                    finishGame();
+                }
+            });
+        } 
+    }
+
+    el('startClean').addEventListener('click', ()=>{
+        if(running) return;
+        running = true; 
+        hits = 0;
+        
+        const activeTask = PLAYER.tasksToday.find(t => t.module === 'clean' && t.active && !t.done);
+        if(activeTask && activeTask.id === 't11') targetCount = 8; 
+        else targetCount = 5 + Math.floor(Math.random() * 6); 
+        
+        spawnDust(targetCount);
+        start = Date.now();
+        
+        // Vẫn giữ giới hạn 12s nếu không dọn kịp
+        timer = setTimeout(finishGame, 12000); 
+    });
+}
+function renderMakeMini(mode = 'normal'){
+    const container = el('makeMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+
+    if (mode === 'menu_create') {
+        renderMenuCreator(container);
+        return;
+    }
+    
+    // --- KHU VỰC PHA CHẾ CỐT LÕI (Thường/Độc Lạ) ---
+    container.innerHTML = `
+        <div style="font-weight:700">Khu Pha Chế ${mode === 'special' ? 'Độc Lạ (T12)' : 'Thường'}</div>
+        <div class="small">Thứ tự pha: chọn thành phần đúng theo order. 
+            <button id="toggleMenuCreator" class="btn-ghost small">Tạo Menu Mới/Công Thức >></button>
+        </div>
+        <div id="orderBox" style="margin-top:8px; min-height: 40px;"></div>
+        <div class="make-steps" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+            <button id="newOrder" class="btn-ghost">Tạo order</button>
+            <button id="checkMake" class="btn-ghost">Kiểm tra & Hoàn thành</button>
+            <button id="wasteMake" class="btn-ghost">Vứt bỏ (-50 ₫)</button>
+        </div>
+        <div id="makeArea" style="margin-top:8px; min-height: 20px;"></div>
+    `;
+
+    el('toggleMenuCreator').addEventListener('click', () => renderMakeMini('menu_create'));
+
+    // Bảng công thức chính (hợp nhất cứng và tự tạo)
+
+const composition = {
+    'Espresso': ['Grind', 'Tamp', 'Pull'],
+    'Latte': ['Grind', 'Tamp', 'Pull', 'Steam Milk', 'Pour'],
+    'Cappuccino': ['Grind', 'Tamp', 'Pull', 'Steam Milk', 'Froth', 'Pour'],
+    'Mocha': ['Grind', 'Tamp', 'Pull', 'Chocolate', 'Steam Milk', 'Pour'],
+    'Signature Blend': ['Grind', 'Tamp', 'Pull', 'Chocolate', 'Froth'], // Khớp với steps trong player object
+    'Black Coffee': ['Grind', 'Tamp', 'Pull', 'Pour']
+};
+
+    PLAYER.recipes.forEach(r => {
+        composition[r.name] = r.steps;
+    });
+
+    let currentOrder = null; let playerSteps = [];
+    const makeStepsArea = container.querySelector('.make-steps');
+
+    function newOrder(){
+        playerSteps = [];
+        
+        const activeTask = PLAYER.tasksToday.find(t => t.module === 'make' && t.active && !t.done);
+        let type;
+        
+        if(activeTask && activeTask.id === 't3') type = 'Espresso'; 
+        else if(activeTask && activeTask.id === 't12') {
+             // T12: Chọn món phức tạp nhất của người chơi (>= 5 bước)
+             const complexRecipe = PLAYER.recipes.find(r => r.steps.length >= 5);
+             type = complexRecipe ? complexRecipe.name : 'Special Blend';
+             if (!complexRecipe) toast('Không tìm thấy công thức tự tạo >= 5 bước. Dùng Special Blend mặc định.');
+        } 
+        else {
+            // Lấy TẤT CẢ các loại nước (cơ bản + tự tạo)
+            const availableTypes = getAvailableOrderTypes(); 
+            type = availableTypes[Math.floor(Math.random()*availableTypes.length)];
+        }
+
+        const steps = composition[type] || ['Grind','Tamp','Pull'];
+        currentOrder = {type, steps};
+        
+        // Tìm đoạn code này trong hàm renderMakeMini (khoảng dòng 930-945)
+// Thay thế đoạn khởi tạo nút bấm bằng đoạn dưới đây:
+
+        el('orderBox').innerHTML = `<div style="font-weight:700">${type}</div><div class="small">Steps: ${steps.join(' → ')}</div>`;
+        
+        makeStepsArea.innerHTML = '';
+        
+        // DANH SÁCH TẤT CẢ NGUYÊN LIỆU (Bao gồm cả Độc Lạ và Nâng cao)
+        const allIngredients = [
+            'Grind','Tamp','Pull','Steam Milk','Froth','Pour','Sugar',
+            'Chocolate','Caramel','Vanilla','Mint','Cinnamon',
+            'FruitSyrup','Gelatin','Spices','HerbMix','RareBean','Exotic','Extra'
+        ];
+
+        allIngredients.forEach(s => { 
+            const b = document.createElement('button'); 
+            b.className = 'btn-ghost'; 
+            b.textContent = s;
+            
+            // Highlight các nguyên liệu đặc biệt để dễ phân biệt
+            if (['Exotic', 'RareBean', 'HerbMix', 'Spices'].includes(s)) {
+                b.style.borderColor = 'var(--accent)';
+                b.style.fontWeight = 'bold';
+            }
+
+            b.addEventListener('click', () => { 
+                playerSteps.push(s); 
+                beep(740, 0.04); 
+                el('makeArea').innerHTML = 'Bạn: ' + playerSteps.join(' → '); 
+            });
+            makeStepsArea.appendChild(b);
+        });
+    }
+
+    el('newOrder').addEventListener('click', newOrder);
+    el('checkMake').addEventListener('click', ()=>{
+        if(!currentOrder){ toast('Chưa có order'); return; }
+        if(playerSteps.length === 0){ toast('Bạn chưa làm gì'); return; }
+
+        const target = currentOrder.steps;
+        let correct = 0;
+        let matchPerfect = true;
+        
+        for(let i=0;i<target.length;i++){ 
+            if(i < playerSteps.length && playerSteps[i]===target[i]) correct++; 
+            else matchPerfect = false;
+        }
+
+        if(playerSteps.length > target.length && playerSteps.slice(target.length).some(step => step !== 'Extra')) matchPerfect = false;
+        
+        let basePts = correct * 15;
+        
+        let repChange = 0;
+        let score = 0;
+
+        if(matchPerfect && playerSteps.length === target.length) { 
+            repChange = 5;
+            score = 3;
+            basePts += 30;
+        } else if(correct === target.length) { 
+            repChange = 2;
+            score = 2;
+            basePts += 10;
+        } else if(correct > 0) {
+            repChange = 0;
+            score = 1;
+        } else {
+            repChange = -5;
+            score = 0;
+        }
+        
+        // Hoàn thành nhiệm vụ T12 (Pha đồ uống đặc sắc S)
+        // Logic fix: Kiểm tra món phức tạp (>= 5 bước) và điểm đạt mức Hoàn hảo (score >= 3)
+        if (target.length >= 5 && score >= 3) {
+            completeActiveTask('make', 4); // Điểm cao nhất cho nhiệm vụ Special (T12)
+        } else {
+            if(score > 0) completeActiveTask('make', score);
+        }
+
+        // NEW: Áp dụng Booster Point
+        let pointMultiplier = 1;
+        const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+        if (pointBoost) {
+            pointMultiplier = 1.5; 
+        }
+        const finalPts = Math.round(basePts * pointMultiplier);
+
+        PLAYER.point += finalPts;
+        PLAYER.reputation = Math.min(100, Math.max(0, PLAYER.reputation + repChange));
+        PLAYER.taskHistory.push({taskId:'make', title:`Pha ${currentOrder.type}`, pts:finalPts, at:Date.now()});
+        savePlayer(PLAYER); updateHeader(); renderHistory();
+        toast(`Pha xong +${finalPts} point (${correct}/${target.length} đúng). ${matchPerfect?'HOÀN HẢO':'Sai sót'}`);
+        currentOrder = null; playerSteps = []; el('orderBox').innerHTML = ''; el('makeArea').innerHTML = '';
+    });
+
+    el('wasteMake').addEventListener('click', ()=>{
+        if(!currentOrder) { toast('Không có gì để vứt bỏ'); return; }
+        PLAYER.coin -= 50;
+        PLAYER.reputation = Math.max(0, PLAYER.reputation - 2); 
+        PLAYER.taskHistory.push({taskId:'waste', title:`Vứt bỏ ${currentOrder.type}`, coin:-50, at:Date.now()});
+        savePlayer(PLAYER); updateHeader(); renderHistory();
+        toast(`Đã vứt bỏ ${currentOrder.type} -50 ₫`);
+        currentOrder = null; playerSteps = []; el('orderBox').innerHTML = ''; el('makeArea').innerHTML = '';
+    });
+}
+function renderMenuCreator(container) {
+    // --- Khu vực Tạo Menu Mới (T18) ---
+    // Bảng công thức tĩnh
+    const baseRecipes = {
+        'Espresso':['Grind','Tamp','Pull'],
+        'Latte':['Espresso','Steam Milk','Pour'],
+        'Special Blend (Mặc định)':['Grind','Tamp','Pull','Froth','Pour','Sugar'],
+    };
+    
+    // Bảng Công Thức (Recipe Table)
+let recipeTableHTML = `
+    <div style="font-weight:700; margin-top: 15px;">Bảng Công Thức (Đã Lưu: ${PLAYER.recipes.length}/${PLAYER.upgrades.recipe_slots})</div>
+    <div class="small">Tham khảo công thức để pha chế chính xác hoặc hoàn thành T12.</div>
+    
+    <div class="recipe-table-container" style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:10px;">
+        <table class="recipe-table" style="min-width:500px; width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:rgba(0,0,0,0.03);">
+                    <th style="padding:8px; text-align:left;">Món</th>
+                    <th style="padding:8px; text-align:left;">Bước pha chế</th>
+                    <th style="padding:8px; text-align:center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${Object.keys(baseRecipes).map(name => `
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:8px;"><b>${name}</b></td>
+                        <td style="padding:8px;">${baseRecipes[name].join(' → ')}</td>
+                        <td style="padding:8px;"></td>
+                    </tr>
+                `).join('')}
+                ${PLAYER.recipes.map(r => {
+                    const evalResult = r.rank ? r : evaluateRecipe(r.steps); 
+                    const priceText = evalResult.hasNewIngredient 
+                        ? `<span style="color:#900;font-weight:bold;">${evalResult.sellPrice.toLocaleString()} P</span>` 
+                        : `${evalResult.sellPrice.toLocaleString()} P`;
+
+                    return `<tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:8px;"><b>${r.name}</b> <div class="small" style="color:var(--muted)">Rank: ${evalResult.rank}</div></td>
+                        <td style="padding:8px;">${r.steps.join(' → ')}</td>
+                        <td style="padding:8px; text-align:center;">
+                            <div class="small">${priceText}</div>
+                            <button class="btn-sell-recipe" data-sell="${r.name}" data-price="${evalResult.sellPrice}" style="margin-top:4px;">Bán</button>
+                        </td>
+                    </tr>`
+                }).join('')}
+            </tbody>
+        </table>
+    </div>
+`;
+
+   container.innerHTML = `
+    <div style="font-weight:700">Tạo Công Thức & Menu Mới (T18)</div>
+    <div class="small">Chi phí: 1000 ₫ | Slot: ${PLAYER.recipes.length}/${PLAYER.upgrades.recipe_slots}
+        <button id="toggleBrewLab" class="btn-ghost small" style="padding:2px 8px; margin-left:10px;">Về Khu Pha Chế >></button>
+    </div>
+    
+    <input id="newRecipeName" placeholder="Tên món mới (VD: Sky Latte)" style="margin-top: 10px; margin-bottom: 8px; width:100%;">
+
+    <div style="font-weight:600" class="small">Quy trình (Thứ tự):</div>
+    <div id="creationBench" class="brew-bench" style="min-height:60px; padding:10px; background:#fff; border-radius:8px; border:1px dashed var(--accent); display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-bottom:10px;"></div>
+    
+    <div id="creationButtons" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:6px;">
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Grind">Grind</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Tamp">Tamp</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Pull">Pull</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Steam Milk">Milk</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Froth">Froth</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Chocolate">Choco</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Sugar">Sugar</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Caramel">Caramel</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Vanilla">Vanilla</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Mint">Mint</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Cinnamon">Cinna</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="FruitSyrup">Fruit</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Gelatin">Gelatin</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="Spices">Spices</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="HerbMix">Herb</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px;" data-step="RareBean">Rare</button>
+        <button class="btn-ghost" style="padding:8px 2px; font-size:12px; border-color:var(--accent);" data-step="Exotic">Độc Lạ</button>
+    </div>
+    
+    <div style="margin-top:15px; display:flex; gap:10px;">
+        <button id="btnSaveRecipe" style="flex:2;">Lưu món (1000 ₫)</button>
+        <button id="btnClearRecipe" class="btn-ghost" style="flex:1;">Xóa hết</button>
+    </div>
+    
+    ${recipeTableHTML}
+`;
+
+    el('toggleBrewLab').addEventListener('click', () => renderMakeMini('normal'));
+    const creationBench = el('creationBench');
+    let recipeSteps = [];
+
+    function updateBench() {
+        creationBench.innerHTML = recipeSteps.map(s => `<span class="badge">${s}</span>`).join(' → ');
+    }
+
+    el('creationButtons').querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            recipeSteps.push(btn.dataset.step);
+            updateBench();
+            beep(740, 0.04);
+        });
+    });
+
+    el('btnClearRecipe').addEventListener('click', () => {
+        recipeSteps = [];
+        updateBench();
+    });
+
+    el('btnSaveRecipe').addEventListener('click', () => {
+        const name = el('newRecipeName').value.trim();
+        if (name.length < 3) {
+            toast('Tên món phải có ít nhất 3 ký tự.');
+            return;
+        }
+        const recipeEval = evaluateRecipe(recipeSteps);
+if (recipeEval.rank === '0/5') {
+    toast('Công thức phải có ít nhất 3 bước!');
+    return;
+}
+        if (PLAYER.recipes.length >= PLAYER.upgrades.recipe_slots) {
+             toast(`Không đủ slot công thức. Mua thêm slot trong Shop! (${PLAYER.recipes.length}/${PLAYER.upgrades.recipe_slots})`);
+             return;
+        }
+        if (PLAYER.coin < 1000) {
+            toast('Không đủ 1000 ₫ phí nghiên cứu.');
+            return;
+        }
+        
+        const existingNames = [...BASE_ORDER_TYPES, 'Special Blend', ...PLAYER.recipes.map(r => r.name)];
+        if (existingNames.includes(name)) {
+            toast('Tên công thức đã tồn tại.');
+            return;
+        }
+
+        PLAYER.coin -= 1000; // Trừ chi phí nghiên cứu
+        PLAYER.recipes.push({ 
+    name: name, 
+    steps: recipeSteps,
+    rank: recipeEval.rank,
+    sellPrice: recipeEval.sellPrice,
+    hasNewIngredient: recipeEval.hasNewIngredient,
+    baseSellMax: recipeEval.maxPoints,
+    baseSellMin: recipeEval.minPoints
+});
+        PLAYER.taskHistory.push({taskId:'research', title:`Nghiên cứu công thức ${name}`, coin:-1000, at:Date.now()});
+
+        
+        // Logic chấm điểm sáng tạo menu (cho T18)
+        let score = 1;
+        if (PLAYER.recipes.length >= 5) { 
+            score = 3; // Hoàn thành T18 nếu lưu được 5 công thức
+        } else if (recipeSteps.includes('Exotic') && recipeSteps.length >= 5) {
+            score = 2; 
+        }
+
+        if (score > 0) completeActiveTask('make', score); // T18 dùng module make
+
+        savePlayer(PLAYER);
+        renderMenuCreator(container); // Render lại để cập nhật bảng công thức
+        updateHeader();
+        toast(`Đã lưu công thức "${name}"! -1000 ₫`);
+    });
+    
+    // UPDATED: Nút Bán Công thức (Bán lấy Point)
+    container.querySelectorAll('.btn-sell-recipe').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const nameToSell = this.dataset.sell;
+            const price = parseInt(this.dataset.price); // Lấy giá Point đã set từ Thay đổi 6
+            const recipeIndex = PLAYER.recipes.findIndex(r => r.name === nameToSell);
+            
+            if (recipeIndex > -1) {
+                PLAYER.recipes.splice(recipeIndex, 1);
+                PLAYER.point += price; // BÁN LẤY POINT
+                PLAYER.taskHistory.push({taskId:'sell_recipe', title:`Bán công thức ${nameToSell}`, pts:price, at:Date.now()});
+                
+                savePlayer(PLAYER);
+                renderMenuCreator(container);
+                updateHeader();
+                toast(`Đã bán công thức "${nameToSell}"! +${price.toLocaleString()} Point.`);
+            }
+        });
+    });
+}
+    
+    
+function renderAdsMini(){
+    const container = el('adsMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    container.innerHTML = `
+        <div class="small">Chọn kênh quảng cáo (FB/IG/Flyer) và target (Student/Office/Walk-in)</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+            <select id="adChannel"><option>Facebook</option><option>Instagram</option><option>Flyer</option></select>
+            <select id="adTarget"><option>Student</option><option>Office</option><option>Walk-in</option></select>
+            <button id="runAd" class="btn-ghost">Chạy</button>
+        </div>
+    `;
+
+    const btn = el('runAd');
+    
+    btn.addEventListener('click', ()=>{
+        // --- CHỐNG SPAM ---
+        btn.disabled = true;
+        btn.textContent = 'Đang đăng...';
+        btn.style.opacity = '0.6';
+
+        const ch = el('adChannel').value, tg = el('adTarget').value;
+        
+        setTimeout(() => {
+            let basePts=0, baseCoin=0, repChange=0;
+            let score = 0;
+
+            if(ch==='Instagram' && tg==='Student') { basePts=50; repChange=3; score=3; }
+            else if(ch==='Facebook' && tg==='Office') { basePts=50; repChange=3; score=3; }
+            else if(ch==='Flyer' && tg==='Walk-in') { basePts=30; repChange=1; score=1; }
+            else { basePts=10; repChange=-2; score=0; } 
+            
+            baseCoin = Math.round(basePts * 2);
+            
+            if(score > 0) completeActiveTask('ads', score);
+
+            // --- LOGIC BOOSTER COIN (MỚI) ---
+            let coinMultiplier = 1;
+            const coinBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'coin_booster' && b.expiry > Date.now());
+            if (coinBoost) {
+                coinMultiplier = 1.5; 
+            }
+            const finalCoin = Math.round(baseCoin * coinMultiplier);
+
+            // --- LOGIC BOOSTER POINT ---
+            let pointMultiplier = 1;
+            const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+            if (pointBoost) {
+                pointMultiplier = 1.5; 
+            }
+            const finalPts = Math.round(basePts * pointMultiplier);
+
+            // Cập nhật dữ liệu
+            PLAYER.point += finalPts; 
+            PLAYER.coin += finalCoin;
+            PLAYER.reputation = Math.min(100, Math.max(0, PLAYER.reputation + repChange));
+
+            PLAYER.taskHistory.push({
+                taskId:'ads', 
+                title:`Ads ${ch}-${tg}`, 
+                pts: finalPts, 
+                coin: finalCoin, 
+                at: Date.now()
+            });
+
+            savePlayer(PLAYER); 
+            updateHeader(); 
+            renderHistory();
+            
+            // Thông báo hiển thị rõ số tiền/điểm thực nhận
+            const bonusText = (coinMultiplier > 1 || pointMultiplier > 1) ? " (Đã kèm Booster ✨)" : "";
+            toast(`Quảng cáo thành công! +${finalPts} point, +${finalCoin.toLocaleString()} ₫${bonusText}`);
+            beep(660, 0.1);
+
+            btn.disabled = false;
+            btn.textContent = 'Chạy';
+            btn.style.opacity = '1';
+
+        }, 3000); 
+    });
+}
+// Đưa biến đếm ra ngoài phạm vi hàm hoặc dùng biến toàn cục/player property để tránh reset khi re-render
+let t15StreakCount = 0; 
+
+function renderServeMini(){
+    const container = el('serveMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    container.innerHTML = `
+        <div class="small">Kéo tách tới bàn. Xong sớm cộng điểm ngay.</div>
+        <div id="serveTimer" style="font-weight:bold; color:var(--muted); margin-top:4px;">Thời gian: --s</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1" id="tablesArea"></div>
+            <div style="width:120px" id="cupsArea"></div>
+        </div>
+        <div style="margin-top:8px">
+            <button id="serveReset" class="btn-ghost">Bắt đầu phục vụ</button>
+            <div id="t15Progress" class="small hidden" style="margin-top:4px; color:var(--accent); font-weight:bold;"></div>
+        </div>
+    `;
+
+    const tablesArea = el('tablesArea'); 
+    const cupsArea = el('cupsArea');
+    const timerDisplay = el('serveTimer');
+    const progressT15 = el('t15Progress');
+    const MAX_CUPS = 4 + (PLAYER.upgrades.table_upgrade * 1);
+    
+    let running = false;
+    let start;
+    let timerInterval;
+    let timeoutId;
+
+    // Hiển thị tiến độ T15 ngay nếu đang làm nhiệm vụ này
+    const activeTask = PLAYER.tasksToday.find(t => t.id === 't15' && t.active && !t.done);
+    if(activeTask) {
+        progressT15.classList.remove('hidden');
+        progressT15.textContent = `Tiến độ T15: ${t15StreakCount}/2 lần (Dưới 15s/lượt)`;
+    }
+
+    function spawn(){
+        tablesArea.innerHTML=''; cupsArea.innerHTML='';
+        for(let i=0;i<MAX_CUPS;i++){ 
+            const t=document.createElement('div'); t.className='dropzone'; 
+            t.style.minHeight='60px'; t.textContent='Bàn '+(i+1); 
+            t.dataset.table='t'+i; tablesArea.appendChild(t); 
+        }
+        for(let i=0;i<MAX_CUPS;i++){ 
+            const c=document.createElement('div'); c.className='draggable'; 
+            c.draggable='true'; c.dataset.cup='c'+i; c.textContent='☕️'; 
+            cupsArea.appendChild(c); 
+        }
+        
+        cupsArea.querySelectorAll('.draggable').forEach(d=> {
+            d.addEventListener('dragstart', e=> {
+                if(!running) return e.preventDefault();
+                e.dataTransfer.setData('text/plain', d.dataset.cup);
+            });
+        });
+
+        tablesArea.querySelectorAll('.dropzone').forEach(z=>{
+            z.addEventListener('dragover', e=> e.preventDefault());
+            z.addEventListener('drop', e=>{
+                e.preventDefault();
+                if(!running) return;
+                const cupId = e.dataTransfer.getData('text/plain');
+                const cupNode = cupsArea.querySelector(`[data-cup="${cupId}"]`);
+                if(cupNode && !z.querySelector('.draggable')){ 
+                    z.appendChild(cupNode); 
+                    beep(720,0.04); 
+                    cupNode.draggable=false;
+                    
+                    const served = tablesArea.querySelectorAll('[data-cup]').length;
+                    if(served === MAX_CUPS) finishRound();
+                }
+            });
+        });
+    }
+
+    function finishRound() {
+        if (!running) return;
+        running = false;
+        clearInterval(timerInterval);
+        clearTimeout(timeoutId);
+
+        const timeSpent = (Date.now() - start) / 1000;
+        const served = tablesArea.querySelectorAll('[data-cup]').length;
+        let basePts = served * 12; 
+        let repChange = 0;
+        let score = 0; 
+
+        // Logic nhiệm vụ T15
+        const currentTask = PLAYER.tasksToday.find(t => t.id === 't15' && t.active && !t.done);
+        if (currentTask) {
+            progressT15.classList.remove('hidden');
+            if (served === MAX_CUPS && timeSpent <= 15) {
+                t15StreakCount++;
+                progressT15.textContent = `Tiến độ T15: ${t15StreakCount}/2 lần thành công!`;
+                if (t15StreakCount >= 2) {
+                    completeActiveTask('serve', 3);
+                    t15StreakCount = 0;
+                }
+            } else {
+                t15StreakCount = 0; // Thất bại lượt này reset về 0
+                progressT15.textContent = `Thất bại! Phải làm liên tiếp 2 lượt < 15s.`;
+                toast("Khách khó tính đã bỏ đi! Hãy làm lại từ đầu.", 3000);
+            }
+        } else {
+            // Tính điểm cho các nhiệm vụ thường (t7, v.v.)
+            if(served === MAX_CUPS && timeSpent < 5) { repChange = 5; score = 3; } 
+            else if(served >= 2) { repChange = 2; score = 2; }
+            else if(served < 1) { repChange = -5; score = 0; }
+            if(score > 0) completeActiveTask('serve', score);
+        }
+
+        // Áp dụng Booster & Lưu dữ liệu
+        let pointMultiplier = 1;
+        const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+        if (pointBoost) pointMultiplier = 1.5; 
+        
+        const finalPts = Math.round(basePts * pointMultiplier);
+        PLAYER.point += finalPts; 
+        PLAYER.reputation = Math.min(100, Math.max(0, PLAYER.reputation + repChange));
+        PLAYER.taskHistory.push({taskId:'serve', title:'Phục vụ khách', pts:finalPts, at:Date.now()}); 
+        
+        savePlayer(PLAYER); updateHeader(); renderHistory(); 
+        toast(`Xong! +${finalPts} pts. (${timeSpent.toFixed(2)}s)`); 
+        timerDisplay.textContent = `Kết quả: ${timeSpent.toFixed(2)}s`;
+        el('serveReset').disabled = false;
+    }
+
+    el('serveReset').addEventListener('click', ()=>{
+        if(running) return;
+        running = true;
+        el('serveReset').disabled = true;
+        spawn();
+        
+        start = Date.now();
+        // TĂNG THỜI GIAN GIỚI HẠN LÊN 15S ĐỂ PHÙ HỢP T15
+        const TIME_LIMIT = 15; 
+        
+        timerInterval = setInterval(() => {
+            const current = (Date.now() - start) / 1000;
+            const left = Math.max(0, TIME_LIMIT - current);
+            timerDisplay.textContent = `Thời gian còn lại: ${left.toFixed(2)}s`;
+        }, 50);
+
+        timeoutId = setTimeout(finishRound, TIME_LIMIT * 1000); 
+    });
+
+    spawn();
+}
+function renderStaffMini(){
+    const container = el('staffMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    const hiredStaffIds = PLAYER.staff.map(s => s.id);
+    const availableCandidates = CANDIDATE_POOL.filter(c => !hiredStaffIds.some(hId => hId === c.id));
+
+    container.innerHTML = `
+        <div style="font-weight:700">Tuyển dụng Nhân sự</div>
+        <div class="small">Chọn nhân viên phù hợp với vai trò (barista/serve/maint)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="cands"></div>
+        
+        <div style="margin-top:15px"><div style="font-weight:700">Đội ngũ hiện tại:</div></div>
+        
+        <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:700">Đào Tạo Nhân Viên (Cần Đào tạo)</div>
+            <div id="trainingButtons" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                ${PLAYER.staff.filter(s => s.rank === 'A').map(s => {
+                    const progress = s.trainProgress || 0;
+                    const target = s.isSpecial ? 1 : 2; 
+                    const cost = s.isSpecial ? 500 : 2000;
+                    return `
+                    <button class="btn-train" id="btn-train-${s.id}" data-train-id="${s.id}" data-rank="A">
+                        <div class="progress-fill" id="fill-${s.id}" style="width: ${(progress/target)*100}%"></div>
+                        <span id="text-${s.id}">Đào tạo ${s.name} (${s.rank}) lên A+ - ${cost} ₫ (${progress}/${target})</span>
+                    </button>`;
+                }).join('')}
+                
+                ${PLAYER.staff.filter(s => s.rank === 'S' && !s.skills.includes('ads')).map(s => {
+                    const progress = s.trainProgress || 0;
+                    const target = 1;
+                    const cost = s.isSpecial ? 500 : 3000;
+                    return `
+                    <button class="btn-train" id="btn-train-${s.id}" data-train-id="${s.id}" data-rank="S">
+                        <div class="progress-fill" id="fill-${s.id}" style="width: ${(progress/target)*100}%"></div>
+                        <span id="text-${s.id}">Đào tạo ${s.name} (${s.rank}) thêm ADS - ${cost} ₫ (${progress}/${target})</span>
+                    </button>`;
+                }).join('')}
+                
+                ${PLAYER.staff.filter(s => s.rank === 'S' && s.skills.includes('ads') && !s.rank.includes('+')).map(s => {
+                    const progress = s.trainProgress || 0;
+                    const target = s.isSpecial ? 1 : 3;
+                    const cost = s.isSpecial ? 500 : 3000;
+                    return `
+                    <button class="btn-train" id="btn-train-${s.id}" data-train-id="${s.id}" data-rank="S_FINAL" style="background:linear-gradient(180deg,#e9967a,#cd5c5c)">
+                        <div class="progress-fill" id="fill-${s.id}" style="width: ${(progress/target)*100}%"></div>
+                        <span id="text-${s.id}">Nâng cấp cuối: ${s.name} lên S+ - ${cost} ₫ (${progress}/${target})</span>
+                    </button>`;
+                }).join('')}
+                
+                ${PLAYER.staff.every(s => (s.rank !== 'A' || s.rank.includes('+'))) && 
+                   PLAYER.staff.every(s => s.rank !== 'S' || (s.rank.includes('+') && s.skills.includes('ads'))) ? 
+                   '<div class="small" style="padding: 5px; border-radius: 5px; background: #e8f7ec; color: #2c4b30;">Tất cả nhân viên đủ điều kiện đã được đào tạo!</div>' : ''}
+            </div>
+        </div>
+        
+        <div id="hiredStaffList" class="small">
+             ${PLAYER.staff.map(s=>{
+                 const checkTrained = s.isSpecial ? 'false' : s.trained;
+                 return `<div style="border: 1px solid rgba(0,0,0,0.05); padding: 5px; margin-top: 5px; border-radius: 5px;">
+                     <b>${s.name} (Rank ${s.rank})</b> ${s.isSpecial ? '✨' : ''} - Skills: ${s.skills.join(', ')} (Lương: ${s.salary}₫/3 ngày) 
+                     <button class="btn-ghost" style="float: right; padding: 2px 6px; font-size: 11px;" data-fire-id="${s.id}" data-is-trained="${checkTrained}">Sa thải</button>
+                 </div>`}).join('') || 'Chưa có nhân viên nào.'}
+        </div>
+        
+        <div style="margin-top:15px">
+            <button id="btnStartWork" style="background: linear-gradient(180deg, #4CAF50, #2E8B57); color: white;">BẮT ĐẦU LÀM VIỆC (Staff Auto-Task)</button>
+            <div class="small" style="margin-top: 5px">Nhân viên sẽ tự động hoàn thành các nhiệm vụ cơ bản và Order Online.</div>
+        </div>
+    `;
+
+    const cdiv = el('cands');
+    availableCandidates.forEach((c)=>{
+        const d=document.createElement('div'); d.className='card'; d.style.padding='8px'; 
+        const rankDisplay = c.rank === 'S' ? '🌟 Bậc S' : 'Bậc A';
+
+        // --- PHẦN THÊM MỚI THEO YÊU CẦU ---
+        const specialLabel = c.isSpecial ? 
+            `<div style="font-size:10px; color:var(--text); background:var(--accent); padding:2px 6px; border-radius:4px; margin-top:4px; font-weight:bold; display:inline-block; border:1px solid rgba(0,0,0,0.1);">
+                Ưu tiên tuyển để làm nhiệm vụ đào tạo
+            </div>` : '';
+        // --------------------------------
+
+        d.innerHTML = `
+            <div style="font-weight:700">${c.name} (${rankDisplay})</div>
+            <div class="small">${c.skills.join(', ')} (Lương: ${c.salary}₫/3 ngày)</div>
+            ${specialLabel}
+            <div style="margin-top:6px"><button class="btn-recruit" data-id="${c.id}">Tuyển</button></div>
+        `;
+        
+        cdiv.appendChild(d);
+        
+        d.querySelector('.btn-recruit').addEventListener('click', () => {
+            // --- LOGIC HOÀN THÀNH NHIỆM VỤ (GIỮ NGUYÊN) ---
+            const activeTask = PLAYER.tasksToday.find(t => t.module === 'staff' && !t.done);
+            
+            if (activeTask) {
+                let canComplete = false;
+                if (activeTask.id === 't16' && c.rank === 'S') {
+                    canComplete = true;
+                } else if (activeTask.id === 't8') {
+                    canComplete = true;
+                }
+
+                if (canComplete) {
+                    activeTask.active = true; 
+                    completeActiveTask('staff', 4); 
+                    renderTasks(); 
+                } else if (activeTask.id === 't16' && c.rank !== 'S') {
+                    toast("Nhiệm vụ yêu cầu tuyển nhân viên bậc S!");
+                }
+            }
+            // --- KẾT THÚC LOGIC NHIỆM VỤ ---
+
+            PLAYER.staff.push({...c, trainProgress: 0});
+            savePlayer(PLAYER); 
+            updateHeader(); 
+            renderHistory(); 
+            renderStaffMini(); 
+            toast(`Đã tuyển ${c.name} thành công!`);
+        });
+    });
+
+    el('trainingButtons').querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => { handleStaffTraining(b.dataset.trainId, b.dataset.rank); });
+    });
+
+    el('hiredStaffList').querySelectorAll('button[data-fire-id]').forEach(b => {
+        b.addEventListener('click', () => {
+            const id = b.dataset.fireId;
+            const staffObj = PLAYER.staff.find(s => s.id === id);
+            const fireFee = (staffObj.isSpecial) ? 0 : (staffObj.trained ? 1000 : 0);
+
+            if (PLAYER.coin < fireFee) { 
+                toast(`Không đủ ${fireFee.toLocaleString()} ₫ phí phá hợp đồng.`); 
+                return; 
+            }
+
+            if (fireFee > 0) {
+                PLAYER.coin -= fireFee;
+                PLAYER.taskHistory.push({taskId:'fire_staff', title:`Sa thải ${staffObj.name}`, coin:-fireFee, at:Date.now()});
+            }
+
+            const idx = PLAYER.staff.findIndex(s => s.id === id);
+            if (idx > -1) {
+                const name = PLAYER.staff[idx].name;
+                PLAYER.staff.splice(idx, 1);
+                savePlayer(PLAYER); 
+                renderStaffMini(); 
+                updateHeader();
+                toast(`Đã sa thải ${name}.${fireFee > 0 ? ' Phí: 1.000₫' : ' (Miễn phí)'}`);
+            }
+        });
+    });
+
+    el('btnStartWork').addEventListener('click', startStaffWork);
+}
+
+function handleStaffTraining(staffId, rankKey) {
+    const staff = PLAYER.staff.find(s => s.id === staffId);
+    if (!staff) return;
+
+    // 1. Xác định target và cost: Minh/Linh chỉ cần 1 lần và 500 coin
+    let target, cost;
+    if (staff.isSpecial) {
+        target = 1; 
+        cost = 500;
+    } else {
+        target = (rankKey === 'A') ? 2 : (rankKey === 'S' ? 1 : 3);
+        cost = (rankKey === 'A') ? 2000 : 3000;
+    }
+
+    if (PLAYER.coin < cost) {
+        toast(`Không đủ ${cost.toLocaleString()} ₫ để đào tạo!`);
+        return;
+    }
+
+    // 2. Trừ tiền và tăng tiến trình
+    PLAYER.coin -= cost;
+    staff.trainProgress = (staff.trainProgress || 0) + 1;
+    staff.trained = true; // Đánh dấu đã qua đào tạo
+
+    // 3. Cập nhật UI thanh Progress
+    const fillEl = el(`fill-${staffId}`);
+    const textEl = el(`text-${staffId}`);
+    if (fillEl && textEl) {
+        const percent = (staff.trainProgress / target) * 100;
+        fillEl.style.width = percent + '%';
+        textEl.textContent = textEl.textContent.replace(/\(\d\/\d\)$/, `(${staff.trainProgress}/${target})`);
+    }
+
+    beep(700, 0.05);
+
+    // 4. Xử lý khi hoàn thành (Lên cấp)
+    if (staff.trainProgress >= target) {
+        staff.trainProgress = 0; 
+        
+        if (rankKey === 'A') {
+    staff.rank = 'A+';
+    // Minh đã có full skill nên không cần add thêm, chỉ cần đổi Rank để xong Quest
+    completeActiveTask('staff', 2); 
+    toast(`${staff.name} đã lên A+! Nhiệm vụ hoàn tất.`);
+}
+        else if (rankKey === 'S') {
+            staff.skills.push('ads');
+            toast(`${staff.name} đã học thêm kỹ năng ADS.`);
+        } 
+        else if (rankKey === 'S_FINAL') {
+            staff.rank = 'S+';
+            completeActiveTask('staff', 4); // Hoàn complete t22
+            toast(`${staff.name} đã đạt bậc S+! Nhiệm vụ hoàn tất.`);
+        }
+
+        savePlayer(PLAYER);
+        updateHeader();
+        setTimeout(() => renderStaffMini(), 250); 
+    } else {
+        savePlayer(PLAYER);
+        updateHeader();
+    }
+}
+
+// ĐẢM BẢO HÀM NÀY ĐƯỢC KHAI BÁO TRƯỚC
+function renderBankMini() {
+    const container = el('bankMini');
+    if (!container) return;
+    if (!PLAYER) { container.innerHTML = '<div class="small">Đăng nhập để giao dịch</div>'; return; }
+
+    const isLoanActive = PLAYER.bankLoan > 0;
+    let infoHTML = '';
+
+    if (isLoanActive) {
+        const dueDate = new Date(PLAYER.loanDueDate).toLocaleDateString('vi-VN');
+        const interest = Math.round(PLAYER.loanAmount * 0.1); 
+        const totalPayable = PLAYER.bankLoan;
+        const canRepay = PLAYER.coin >= totalPayable;
+        
+        infoHTML = `
+            <div style="padding: 10px; border: 1px dashed ${canRepay ? 'var(--accent)' : '#dc3545'}; border-radius: 8px; background: #fff;">
+                <div style="font-weight: 700; color: var(--text);">Giấy Nợ Hiện Tại:</div>
+                <div class="small">Gốc: ${PLAYER.loanAmount.toLocaleString()} ₫</div>
+                <div class="small">Lãi: ${interest.toLocaleString()} ₫</div>
+                <div class="small" style="font-weight: 800; color: #d63031;">Tổng nợ: ${totalPayable.toLocaleString()} ₫</div>
+                <div class="small">Đáo hạn: ${dueDate}</div>
+                <button id="btnRepayLoan" class="btn-ghost" style="margin-top: 8px; width:100%; background: var(--accent);" ${canRepay ? '' : 'disabled'}>
+                    ${canRepay ? 'Thanh Toán Nợ' : 'Không đủ Coin'}
+                </button>
+            </div>`;
+    } else {
+        infoHTML = `
+            <div style="padding: 10px; border: 1px dashed #ccc; border-radius: 8px; background: #fff;">
+                <div class="small" style="margin-bottom:5px;">Nhập số tiền muốn vay:</div>
+                <input type="number" id="loanAmountInput" value="100000" step="10000" style="margin-bottom:8px;">
+                <button id="btnTakeLoan" style="width: 100%; background: #2ecc71; color: white;">VAY VỐN (Lãi 10%)</button>
+            </div>`;
+    }
+
+    container.innerHTML = infoHTML;
+    
+    if (isLoanActive) {
+        el('btnRepayLoan').addEventListener('click', handleRepayLoan);
+    } else {
+        const btn = el('btnTakeLoan');
+        if(btn) btn.addEventListener('click', handleTakeLoan);
+    }
+}
+function handleTakeLoan() {
+    const amountInput = el('loanAmountInput');
+    const amount = parseInt(amountInput.value);
+    
+    if (isNaN(amount) || amount <= 0 || amount > LOAN_MAX) {
+        toast(`Số tiền vay không hợp lệ (tối đa ${LOAN_MAX.toLocaleString()} ₫)`);
+        return;
+    }
+    
+    if (PLAYER.coin + amount > 999999999) { 
+        toast('Số tiền sau khi vay quá lớn!');
+        return;
+    }
+
+    // Tính ngày đáo hạn (7 ngày sau)
+    const dueDate = Date.now() + (LOAN_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+    const interestAmount = Math.round(amount * LOAN_INTEREST_RATE);
+    
+    PLAYER.coin += amount;
+    PLAYER.loanAmount = amount;
+    PLAYER.bankLoan = amount + interestAmount; // Tổng nợ = Gốc + Lãi
+    PLAYER.loanDueDate = dueDate;
+
+    PLAYER.taskHistory.push({taskId:'take_loan', title:`Vay ngân hàng: +${amount.toLocaleString()} ₫`, coin:amount, at:Date.now()});
+    savePlayer(PLAYER);
+    updateHeader();
+    renderBankMini();
+    toast(`Đã vay ${amount.toLocaleString()} ₫. Tổng nợ: ${PLAYER.bankLoan.toLocaleString()} ₫.`, 6000);
+}
+
+function handleRepayLoan() {
+    if (!PLAYER.bankLoan || PLAYER.coin < PLAYER.bankLoan) {
+        toast('Không đủ tiền để trả nợ.');
+        return;
+    }
+
+    const repayment = PLAYER.bankLoan;
+    PLAYER.coin -= repayment;
+    PLAYER.bankLoan = 0;
+    PLAYER.loanAmount = 0;
+    PLAYER.loanDueDate = 0;
+
+    PLAYER.taskHistory.push({taskId:'repay_loan', title:`Trả nợ ngân hàng: -${repayment.toLocaleString()} ₫`, coin:-repayment, at:Date.now()});
+    savePlayer(PLAYER);
+    updateHeader();
+    renderBankMini();
+    toast(`Đã thanh toán toàn bộ nợ ${repayment.toLocaleString()} ₫.`);
+}
+
+function checkOverdueLoan() {
+    if (!PLAYER || !PLAYER.bankLoan || PLAYER.bankLoan === 0) return;
+
+    if (Date.now() > PLAYER.loanDueDate) {
+        const interest = Math.round(PLAYER.loanAmount * LOAN_INTEREST_RATE); // Lãi suất phạt trên khoản gốc
+        PLAYER.bankLoan += interest; // Cập nhật tổng nợ (tăng thêm lãi phạt)
+        
+        // Cập nhật ngày đáo hạn mới (thêm 7 ngày)
+        PLAYER.loanDueDate = Date.now() + (LOAN_PERIOD_DAYS * 24 * 60 * 60 * 1000);
+
+        PLAYER.taskHistory.push({taskId:'loan_penalty', title:`Lãi phạt trả chậm: +${interest.toLocaleString()} ₫`, coin:0, at:Date.now()});
+        savePlayer(PLAYER);
+        updateHeader();
+        toast(`CẢNH BÁO: Nợ quá hạn! Đã tính thêm ${interest.toLocaleString()} ₫ lãi phạt. Tổng nợ: ${PLAYER.bankLoan.toLocaleString()} ₫.`, 8000);
+        
+        // Buộc render lại nếu đang xem BankMini
+        if (CURRENT_VIEW === 'minigames') renderBankMini(); 
+    }
+}
+    
+function renderMaintMini(){
+    const container = el('maintMini'); container.innerHTML = '';
+    if(!PLAYER){ container.innerHTML='<div class="small">Đăng nhập để chơi</div>'; return; }
+    
+    // Kiểm tra trạng thái máy từ hệ thống Random Event
+    const isBroken = PLAYER.upgrades.maint_status === 'broken';
+    const statusLabel = isBroken ? ' <span id="brokenTag" style="color:#e74c3c; font-weight:800;">(ĐANG HỎNG ⚠️)</span>' : '';
+    
+    // Xác định số lỗi dựa trên nhiệm vụ Active
+    const activeTask = PLAYER.tasksToday.find(t => t.module === 'maint' && t.active && !t.done);
+    const requiredFaults = (activeTask && activeTask.id === 't9') ? 3 : (2 + Math.floor(Math.random()*2));
+
+    container.innerHTML = `
+        <div class="small">Click nhanh vào các icon lỗi để sửa máy.</div>
+        <div id="maintTimer" style="font-weight:bold; color:var(--muted); margin-top:4px; font-family: monospace; font-size: 16px;">Thời gian: 8.00s</div>
+        <div id="machine" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:10px; min-height: 100px; border:2px solid rgba(0,0,0,0.05); padding:15px; border-radius:12px; justify-content:center; align-items:center; background: #f8f9fa;">
+            <div class="small" style="color:#ccc">Nhấn bắt đầu để quét lỗi...</div>
+        </div>
+        <div style="margin-top:12px">
+            <button id="startMaint" style="width:100%; padding: 12px;">BẮT ĐẦU SỬA ${requiredFaults} LỖI ${statusLabel}</button>
+        </div>
+    `;
+
+    const machineArea = el('machine');
+    const timerDisplay = el('maintTimer');
+    const startBtn = el('startMaint');
+    
+    let running = false;
+    let timerInterval;
+    let timeoutId;
+    let startTime;
+    let currentFaultsCount = 0;
+
+    // Hàm kết thúc xử lý NGAY LẬP TỨC (Zero Delay)
+    function finishMaint(isTimeout = false) {
+        if (!running) return;
+        running = false;
+        
+        clearInterval(timerInterval);
+        clearTimeout(timeoutId);
+
+        const endTime = Date.now();
+        const timeSpent = (endTime - startTime) / 1000;
+        const faultsRemaining = machineArea.querySelectorAll('.fault-icon').length;
+        const fixedCount = currentFaultsCount - faultsRemaining;
+        
+        // Tính toán kết quả
+        let score = 0;
+        let basePts = fixedCount * 25;
+        let repGain = 0;
+
+        if (fixedCount === currentFaultsCount) {
+            score = (timeSpent < 4) ? 4 : (timeSpent < 6 ? 3 : 2);
+            repGain = isBroken ? 10 : 3; // Bonus uy tín nếu cứu máy đang hỏng
+        }
+
+        // 1. Cập nhật trạng thái máy ngay lập tức
+        if (fixedCount === currentFaultsCount && isBroken) {
+            PLAYER.upgrades.maint_status = 'ok';
+            const brokenTag = el('brokenTag');
+            if(brokenTag) brokenTag.remove(); // Xóa chữ ĐANG HỎNG ngay trên giao diện
+        }
+
+        // 2. Hoàn thành nhiệm vụ (nếu có)
+        if (score > 0) completeActiveTask('maint', score);
+
+        // 3. Cộng điểm và lưu lịch sử
+        let pointMultiplier = 1;
+        const pointBoost = PLAYER.upgrades.active_boosters.find(b => b.id === 'point_booster' && b.expiry > Date.now());
+        if (pointBoost) pointMultiplier = 1.5;
+        
+        const finalPts = Math.round(basePts * pointMultiplier);
+        PLAYER.point += finalPts;
+        PLAYER.reputation = Math.min(100, PLAYER.reputation + repGain);
+        
+        PLAYER.taskHistory.push({
+            taskId: 'maint_done', 
+            title: `Bảo trì máy (${fixedCount} lỗi)`, 
+            pts: finalPts, 
+            at: Date.now()
+        });
+
+        savePlayer(PLAYER);
+        updateHeader();
+        
+        // 4. Phản hồi UI
+        toast(`✨ Đã sửa xong ${fixedCount} lỗi trong ${timeSpent.toFixed(2)}s! +${finalPts} pts`);
+        timerDisplay.textContent = `Hoàn thành: ${timeSpent.toFixed(2)}s`;
+        machineArea.innerHTML = `<div style="color:#2ecc71; font-weight:bold;">✅ MÁY HOẠT ĐỘNG TỐT</div>`;
+        startBtn.disabled = false;
+        startBtn.innerHTML = `BẮT ĐẦU SỬA ${requiredFaults} LỖI`; // Reset label nút
+    }
+
+    startBtn.addEventListener('click', () => {
+        if (running) return;
+        
+        // Khởi tạo trạng thái game
+        running = true;
+        startBtn.disabled = true;
+        currentFaultsCount = requiredFaults;
+        machineArea.innerHTML = '';
+        
+        // Tạo các icon lỗi
+        for (let i = 0; i < requiredFaults; i++) {
+            const fault = document.createElement('div');
+            fault.className = 'fault-icon draggable';
+            fault.innerHTML = '⚙️';
+            fault.style.cssText = `
+                font-size: 32px; 
+                padding: 15px; 
+                cursor: pointer; 
+                background: #fff; 
+                border-radius: 50%; 
+                box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+                transition: transform 0.1s;
+                user-select: none;
+            `;
+            
+            // Hiệu ứng click mượt mà
+            fault.addEventListener('mousedown', () => fault.style.transform = 'scale(0.8)');
+            
+            fault.addEventListener('click', () => {
+                if (!running) return;
+                fault.remove();
+                beep(800, 0.05);
+                
+                // Nếu là lỗi cuối cùng -> Kết thúc ngay lập tức không delay
+                if (machineArea.querySelectorAll('.fault-icon').length === 0) {
+                    finishMaint();
+                }
+            });
+            machineArea.appendChild(fault);
+        }
+
+        startTime = Date.now();
+        const limit = 8; // 8 giây giới hạn
+
+        // Cập nhật đồng hồ đếm ngược mượt mà (60fps)
+        timerInterval = setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            const remaining = Math.max(0, limit - elapsed);
+            timerDisplay.textContent = `Thời gian còn lại: ${remaining.toFixed(2)}s`;
+            
+            if (remaining < 2) timerDisplay.style.color = '#e74c3c';
+        }, 50);
+
+        timeoutId = setTimeout(() => {
+            if (running) {
+                toast("Hết thời gian! Bảo trì thất bại.");
+                finishMaint(true);
+            }
+        }, limit * 1000);
+    });
+}
+
+// NEW: Cấu hình các skin pastel (đã thay đổi 'skin_pastel' cũ)
+const VIRTUAL_SKINS_CATALOG = [
+    { id: 'skin_pink_pastel', title: 'Skin Hồng Pastel', skin: 'pink', costCoin: 0, effect: 'Màu mặc định' },
+    { id: 'skin_green_pastel', title: 'Skin Xanh Lá Pastel', skin: 'green', costCoin: 3000, effect: 'Đổi giao diện sang màu xanh lá' },
+    { id: 'skin_blue_pastel', title: 'Skin Xanh Dương Pastel', skin: 'blue', costCoin: 3000, effect: 'Đổi giao diện sang màu xanh dương' },
+    { id: 'skin_purple_pastel', title: 'Skin Tím Pastel', skin: 'purple', costCoin: 3000, effect: 'Đổi giao diện sang màu tím' },
+    { id: 'skin_yellow_pastel', title: 'Skin Vàng Pastel', skin: 'yellow', costCoin: 3000, effect: 'Đổi giao diện sang màu vàng' }
+];
+
+// NEW: Catalog Nâng cấp/Booster
+const VIRTUAL_UPGRADES_CATALOG = [
+    {id:'table_upgrade', title:'Bàn +1 (thu hút khách)', costCoin:1500, effect:'Tăng 1 bàn phục vụ/thu hút khách.', type:'upgrade'},
+    {id:'recipe_slots_5', title:'Slot Công thức +5', costCoin:5000, effect:'Tăng thêm 5 slot lưu công thức.', type:'slot'},
+    {id:'point_booster', title:'Booster Point (1h)', costCoin:5000, effect:'Nhận thêm 50% điểm trong 1 giờ.', type:'booster', duration: 3600000},
+    {id:'coin_booster', title:'Booster Coin (1h)', costCoin:5000, effect:'Nhận thêm 50% coin Order Online trong 1 giờ.', type:'booster', duration: 3600000},
+    {id:'coffeeBeans_50', title:'Mua 50 Cà Phê', costCoin:1000, type:'supply', res:'coffeeBeans', count:50},
+    {id:'milk_50', title:'Mua 50 Sữa', costCoin:500, type:'supply', res:'milk', count:50},
+    {id:'sugar_50', title:'Mua 50 Đường', costCoin:200, type:'supply', res:'sugar', count:50},
+    {id:'cups_50', title:'Mua 50 Ly', costCoin:150, type:'supply', res:'cups', count:50},
+];
+
+
+// ---------- Shop virtual & real ----------
+function renderShops() {
+    if (!PLAYER) return;
+
+    // --- PHẦN 1: SHOP ẢO (Nâng cấp, Skin, Booster) ---
+    checkAndFilterBoosters();
+    const vs = el('shopVirtual');
+    
+    const virtualItems = [
+        ...VIRTUAL_SKINS_CATALOG.filter(s => s.id !== 'skin_pink_pastel'),
+        ...VIRTUAL_UPGRADES_CATALOG
+    ];
+
+    // Tạo HTML cho danh sách vật phẩm
+    const itemsHTML = virtualItems.map(it => {
+        if (it.skin) {
+            const owned = PLAYER.upgrades.skins_owned.includes(it.skin);
+            return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,0.03); padding-bottom:6px;">
+                <div><b>${it.title}</b><div class="small">Giá: ${it.costCoin} coin - ${it.effect}</div></div>
+                <div><button class="btn-ghost" data-buy="${it.id}" ${owned || it.costCoin > PLAYER.coin ? 'disabled' : ''}>${owned ? 'Sở Hữu' : 'Mua'}</button></div>
+            </div>`;
+        } 
+        else if (it.type === 'booster') {
+            const isActive = PLAYER.upgrades.active_boosters.some(b => b.id === it.id && b.expiry > Date.now());
+            const buttonText = isActive ? 'Đang Chạy' : 'Kích hoạt';
+            let status = '';
+            if (isActive) {
+                const bData = PLAYER.upgrades.active_boosters.find(b => b.id === it.id);
+                status = `<span style="color: green; margin-left: 5px;">✅ Còn: ${fmtTime(Math.max(0, bData.expiry - Date.now()) / 1000)}</span>`;
+            }
+            return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,0.03); padding-bottom:6px;">
+                <div><b>${it.title}</b>${status}<div class="small">Giá: ${it.costCoin} coin - ${it.effect}</div></div>
+                <div><button class="btn-ghost" data-buy="${it.id}" ${isActive || it.costCoin > PLAYER.coin ? 'disabled' : ''}>${buttonText}</button></div>
+            </div>`;
+        }
+        return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,0.03); padding-bottom:6px;">
+            <div><b>${it.title}</b><div class="small">Giá: ${it.costCoin} coin - ${it.effect || 'Nguyên liệu'}</div></div>
+            <div><button class="btn-ghost" data-buy="${it.id}" ${it.costCoin > PLAYER.coin ? 'disabled' : ''}>Mua</button></div>
+        </div>`;
+    }).join('');
+
+    // Nạp toàn bộ vào khung cuộn
+    vs.innerHTML = `<div class="shop-scroll-container">${itemsHTML}</div>`;
+
+    // Gán lại sự kiện click (quan trọng: phải gán sau khi innerHTML)
+    vs.querySelectorAll('button[data-buy]').forEach(b => b.addEventListener('click', () => {
+        const itemId = b.dataset.buy;
+        const item = virtualItems.find(x => x.id === itemId);
+        
+        if (PLAYER.coin >= item.costCoin) {
+            PLAYER.coin -= item.costCoin;
+            
+            if (item.skin) {
+                PLAYER.upgrades.skins_owned.push(item.skin);
+                PLAYER.upgrades.current_skin = item.skin;
+                applySkin(item.skin);
+                renderSkinButtons();
+            } else if (item.type === 'booster') {
+                PLAYER.upgrades.active_boosters.push({ id: item.id, expiry: Date.now() + item.duration });
+            } else if (item.type === 'supply') {
+                PLAYER.inventory[item.res] += item.count;
+                renderInventoryGame(); 
+                renderOrders(); 
+            } else if (item.type === 'upgrade') {
+                PLAYER.upgrades[item.id] = (PLAYER.upgrades[item.id] || 0) + 1;
+            } else if (item.type === 'slot') {
+                PLAYER.upgrades.recipe_slots += 5;
+            }
+
+            PLAYER.taskHistory.push({ taskId: 'buy_v', title: item.title, coin: -item.costCoin, at: Date.now() });
+            savePlayer(PLAYER); 
+            updateHeader(); 
+            renderShops(); // Render lại để cập nhật trạng thái nút
+            toast(`Đã mua ${item.title} thành công!`);
+            beep(880, 0.05);
+        } else {
+            toast('Không đủ Coin!');
+        }
+    }));
+
+    // --- PHẦN 2: SHOP THẬT ---
+    const rs = el('shopReal');
+    rs.innerHTML = '';
+    const userDiff = PLAYER.settings.difficulty || 'easy';
+
+    // Logic thay đổi Catalog dựa trên Server
+    let realCatalog = [];
+    
+    if (PLAYER.isBeta) {
+        // Cấu hình riêng cho MÁY CHỦ THỬ NGHIỆM
+        realCatalog = [
+            { id: 'beta_5k', title: 'Gói Thử Nghiệm 5k', cost: 100 },
+            { id: 'beta_10k', title: 'Gói Thử Nghiệm 10k', cost: 200 },
+            { id: 'beta_15k', title: 'Gói Thử Nghiệm 15k', cost: 300, allowed: ['normal', 'hard'] },
+            { id: 'beta_20k', title: 'Gói Thử Nghiệm 20k', cost: 500, allowed: ['hard'] },
+        ];
+    } else {
+        // Cấu hình MÁY CHỦ THƯỜNG (Giữ nguyên cũ)
+        realCatalog = [
+            { id: 'g10k', title: 'gói 10k (1 lần)', cost: 300, limit: 1 },
+            { id: 'g20k', title: 'gói 20k (1 lần)', cost: 600, limit: 1 },
+            { id: 'g30k', title: 'gói 30k (1 lần)', cost: 900, limit: 1 },
+            { id: 'g40k', title: 'gói 40k (1 lần)', cost: 1200, limit: 1 },
+            { id: 'g50k', title: 'gói 50k (1 lần)', cost: 1500, limit: 1, allowed: ['normal', 'hard'] },
+            { id: 'ssm_common', title: 'ssm thường (1 lần)', cost: 2000, limit: 1, allowed: ['hard'] },
+        ];
+    }
+
+    rs.innerHTML = realCatalog.map(it => {
+        const isRestricted = it.allowed && !it.allowed.includes(userDiff);
+        const used = PLAYER.taskHistory.filter(h => h.taskId === 'redeem_' + it.id).length;
+        const outOfStock = it.limit && used >= it.limit;
+
+        let lockMessage = "";
+        if (isRestricted) {
+            const req = it.allowed.includes('normal') ? "Bình thường" : "Khó";
+            lockMessage = `<div class="small" style="color:#d9534f; font-weight:bold;">Yêu cầu: ${req}</div>`;
+        }
+
+        return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; ${isRestricted ? 'opacity:0.6' : ''}">
+            <div>
+                <b>${it.title}</b>
+                <div class="small">Giá: ${it.cost} Bean ${it.limit ? '(1 lần)' : ''}</div>
+                ${lockMessage}
+            </div>
+            <div>
+                <button class="btn-ghost" data-rid="${it.id}" ${isRestricted || outOfStock ? 'disabled' : ''}>
+                    ${isRestricted ? '🔒' : (outOfStock ? 'Hết' : 'Đổi')}
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+
+    
+    // Click Shop thật
+    rs.querySelectorAll('button[data-rid]').forEach(b => b.addEventListener('click', () => {
+        const item = realCatalog.find(x => x.id === b.dataset.rid);
+        if (PLAYER.beancoin >= item.cost) {
+            PLAYER.beancoin -= item.cost;
+            PLAYER.taskHistory.push({ taskId: 'redeem_' + item.id, title: `Đổi ${item.title}`, at: Date.now() });
+            savePlayer(PLAYER); updateHeader(); renderHistory(); renderShops();
+            toast(`Đã đổi ${item.title}`);
+        } else toast('Không đủ BeanCoin');
+    }));
+}
+
+// NEW: Render nút điều chỉnh skin trong Cài đặt
+function renderSkinButtons() {
+    const container = el('skinButtons');
+    if (!PLAYER) {
+        container.innerHTML = `<div class="small">Vui lòng mua skin tại Shop Ảo để mở khóa.</div>`;
+        return;
+    }
+    
+    container.innerHTML = VIRTUAL_SKINS_CATALOG.filter(skinItem => PLAYER.upgrades.skins_owned.includes(skinItem.skin))
+        .map(skinItem => {
+            const isCurrent = PLAYER.upgrades.current_skin === skinItem.skin;
+            const buttonStyle = isCurrent ? `background: ${PASTEL_SKINS[skinItem.skin].accent}; color: white; border: 2px solid var(--text);` : `background: ${PASTEL_SKINS[skinItem.skin].card}; border: 1px solid var(--muted);`;
+            
+            return `<button class="skin-btn btn-ghost" data-skin="${skinItem.skin}" style="${buttonStyle}">${skinItem.name}</button>`;
+        }).join('');
+        
+    // Attach event listeners for switching skins
+    container.querySelectorAll('.skin-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const skinName = this.dataset.skin;
+            if (PLAYER.upgrades.current_skin !== skinName) {
+                PLAYER.upgrades.current_skin = skinName;
+                applySkin(skinName);
+                savePlayer(PLAYER);
+                renderSkinButtons(); // Re-render để cập nhật trạng thái nút
+                toast(`Đã đổi giao diện sang ${PASTEL_SKINS[skinName].name}`);
+            }
+        });
+    });
+}
+
+// NEW: Hàm hiển thị Hướng dẫn (ĐÃ CẬP NHẬT)
+function showHelp() {
+    const helpContent = `
+        <p><strong>1. Tiền Tệ:</strong><br>
+        - <b>Coin (₫):</b> Mua nguyên liệu, nâng cấp, Skin. Kiếm từ Order & Ads.<br>
+        - <b>Point (✨):</b> Đổi BeanCoin. Kiếm từ Nhiệm vụ & Bán Công thức.<br>
+        - <b>BeanCoin (⭐):</b> Dùng để đổi quà tặng mô phỏng.</p>
+
+        <p><strong>2. Gameplay Cốt Lõi:</strong><br>
+        - <b>Nhiệm vụ:</b> Hoàn thành mục tiêu trong Minigame để nhận Point.<br>
+        - <b>Minigame:</b> Làm tốt để đạt score cao (3-4) giúp xong nhiệm vụ nhanh hơn.</p>
+        
+        <p><strong>3. Mẹo Quản Lý:</strong><br>
+        - <b>Công thức:</b> Tốn 1000 ₫ nghiên cứu. Bán lấy Point (100 - 3000 pts).<br>
+        - <b>Nhân viên:</b> Đào tạo A &rarr; A+ (2000 ₫), S &rarr; S+ (3000 ₫). Sa thải staff đã đào tạo tốn 1000 ₫ phí bồi thường.<br>
+        - <b>Ngân hàng:</b> Vay tối đa 1.000.000 ₫. Lãi 10% mỗi 7 ngày. Trả chậm sẽ bị phạt thêm lãi!<br>
+        - <b>Uy tín:</b> Càng cao khách gọi Order Online càng nhanh.</p>
+
+        <p><strong>4. Các Nâng Cấp Hiện Có:</strong><br>
+        - <b>Bàn Phục Vụ (+1):</b> Tăng số lượng bàn trong minigame Phục vụ, giúp hoàn thành mục tiêu nhanh hơn.<br>
+        - <b>Slot Công Thức (+5):</b> Mở rộng kho lưu trữ để bạn sáng tạo được nhiều món nước độc lạ hơn.<br>
+        - <b>Giao Diện (Skins):</b> Thay đổi màu sắc chủ đạo của quán (Xanh lá, Xanh dương, Tím, Vàng Pastel).<br>
+        - <b>Booster (Tạm thời 1h):</b> Tăng 50% Coin hoặc Point thu hoạch được trong vòng 60 phút.<br>
+        - <b>Đào Tạo Staff:</b> Nâng cấp Rank giúp nhân viên tự động làm nhiệm vụ và xử lý đơn hàng thay bạn.</p>
+
+        <p><strong>5. Chọn Cấp Độ & Cửa Hàng:</strong><br>
+        - <b>Dễ:</b> Khởi đầu với 500k ₫. Phù hợp để làm quen game.<br>
+        - <b>Bình thường:</b> Khởi đầu với 300k ₫. Mở khóa các gói quà trung cấp.<br>
+        - <b>Khó:</b> Vốn khởi đầu 200k ₫. Cấp độ duy nhất mở khóa <b>Vật phẩm cao cấp (🔒)</b> và gói <b>SSM Thường</b> trong Shop thật.<br>
+        <i>*Lưu ý: Hãy cân nhắc chọn độ khó ngay từ khi đăng nhập để không bỏ lỡ các món quà yêu thích!</i></p>
+
+        <p><strong>6. Sự Kiện Ngẫu Nhiên & Thông Báo:</strong><br>
+        ⚠️ <b>Chú ý:</b> Mỗi khi sang ngày mới, hãy đọc kỹ dòng thông báo (Toast) hiện lên để nắm bắt tình hình quán:<br>
+        - 🚀 <b>Giờ cao điểm (Rush Hour):</b> Doanh thu Online x2 (có thể cộng dồn với Booster thành x2.5).<br>
+        - ⚙️ <b>Máy hỏng:</b> Bạn phải vào mục Bảo trì để sửa ngay, nếu không sẽ bị trừ 10 Uy tín mỗi ngày.<br>
+        - 📰 <b>Báo chí khen ngợi:</b> Tăng mạnh điểm Uy tín cửa hàng.<br>
+        <i>*Mẹo: Hãy luôn chuẩn bị một lượng Coin dư để ứng phó với các sự kiện xấu bất ngờ!</i></p>
+    `;
+    
+    el('helpContentArea').innerHTML = helpContent;
+    el('helpModal').classList.remove('hidden');
+}
+
+function closeHelp() {
+    el('helpModal').classList.add('hidden');
+}
+
+
+// ---------- Conversion: point -> beancoin ----------
+function convertPointsToBean(){
+    if(!PLAYER) { toast('Đăng nhập để đổi điểm'); return; }
+    const pts = prompt('Nhập số point muốn đổi sang beancoin (1000 point = 1 beancoin):','1000');
+    if (pts === null) return; 
+    const n = parseInt(pts);
+    if(isNaN(n) || n<=0){ toast('Số không hợp lệ'); return; }
+    if(PLAYER.point < n){ toast('Không đủ point'); return; }
+    
+    const beans = Math.floor(n/1000);
+    if(beans<=0){ toast('Phải đổi tối thiểu 1000 point'); return; }
+    
+    const usedPoints = beans*1000;
+    PLAYER.point -= usedPoints; 
+    PLAYER.beancoin += beans;
+    PLAYER.taskHistory.push({taskId:'convert', title:`Đổi ${usedPoints} point -> ${beans} beancoin`, pts:-usedPoints, beancoin:beans, at:Date.now()});
+    savePlayer(PLAYER); updateHeader(); renderHistory();
+    toast(`Đã đổi ${usedPoints} point -> ${beans} beancoin`);
+}
+
+// ---------- History render ----------
+function renderHistory(){
+    const h = el('historyList'); if(!PLAYER){ h.innerHTML=''; return; }
+    h.innerHTML = PLAYER.taskHistory.slice().reverse().map(evt=>{
+        const time = new Date(evt.at).toLocaleString('vi-VN');
+        const pts = evt.pts ? `${evt.pts>0?'+':''}${evt.pts} point` : '';
+        const coin = evt.coin ? `${evt.coin>0?'+':''}${evt.coin} coin` : '';
+        const bc = evt.beancoin ? `${evt.beancoin>0?'+':''}${evt.beancoin} beancoin` : '';
+        return `<div style="padding:8px;border-bottom:1px dashed rgba(0,0,0,0.03)"><div style="font-weight:700">${evt.title}</div><div class="small">${time} ${pts} ${coin} ${bc}</div></div>`;
+    }).join('');
+}
+
+// ---------- Save/Load UI & Login ----------
+el('btnLogin').addEventListener('click', ()=>{ switchView('loginView'); el('loginView').classList.remove('hidden'); });
+el('btnLogout').addEventListener('click', ()=>{
+    if(!PLAYER) return;
+    savePlayer(PLAYER);
+    PLAYER=null; updateHeader(); switchView('tasks'); renderTasks();
+    applySkin('pink'); // Reset về màu mặc định khi đăng xuất
+    toast('Đã đăng xuất');
+});
+
+el('doLogin').addEventListener('click', ()=>{
+    const name = el('username').value.trim();
+    const selectedDiff = el('difficulty').value; 
+    if(!name){ alert('Nhập tên!'); return; }
+    
+    let ply = loadPlayer(name);
+    if(!ply){ 
+        ply = defaultPlayer(name, selectedDiff); 
+        setTasksTodayFromPool(ply); 
+        savePlayer(ply); 
+    } 
+    
+    PLAYER = ply;
+    // --- DÒNG THÊM MỚI ---
+    localStorage.setItem('sbm_current_user', name); 
+    // ---------------------
+
+    ensureInitialOrders();
+    applySkin(PLAYER.upgrades.current_skin || 'pink');
+    
+    updateHeader(); renderTasks(); initAllMinigames(); renderInventoryGame(); renderShops(); renderOrders(); renderHistory(); renderSkinButtons();
+    switchView('tasks');
+    toast(`Bắt đầu cửa hàng! Chế độ: ${PLAYER.settings.difficulty === 'easy' ? 'Dễ' : PLAYER.settings.difficulty === 'hard' ? 'Khó' : 'Bình thường'}`);
+});
+
+el('doGuest').addEventListener('click', ()=>{
+    PLAYER = defaultPlayer('Guest_'+Math.floor(Math.random()*999));
+    setTasksTodayFromPool(PLAYER);
+    // NEW: Áp dụng skin mặc định cho khách
+    applySkin('pink'); 
+    
+    updateHeader(); renderTasks(); renderDecorate(); renderCleanMini(); renderMakeMini(); renderAdsMini(); renderInvMini(); renderInventoryGame(); renderServeMini(); renderStaffMini(); renderMaintMini(); renderShops(); renderOrders(); renderHistory(); renderSkinButtons();
+    switchView('tasks');
+    toast('Chơi thử (không lưu)');
+});
+
+el('btnNextDay').addEventListener('click', ()=> nextDay());
+
+// NEW: Hook cho nút Hướng dẫn
+el('btnHelp').addEventListener('click', showHelp);
+
+el('doBeta').addEventListener('click', () => {
+    const name = el('username').value.trim();
+    const selectedDiff = el('difficulty').value;
+    if(!name){ alert('Nhập tên để tham gia thử nghiệm!'); return; }
+    
+    const betaName = name + "_Beta";
+    let ply = loadPlayer(betaName);
+    
+    if(!ply){ 
+        // QUAN TRỌNG: Truyền true vào tham số thứ 3
+        ply = defaultPlayer(betaName, selectedDiff, true); 
+        setTasksTodayFromPool(ply); 
+        savePlayer(ply); 
+    } 
+    
+    PLAYER = ply;
+
+    // --- DÒNG THÊM MỚI ĐỂ LƯU PHIÊN ĐĂNG NHẬP ---
+    localStorage.setItem('sbm_current_user', betaName); 
+    // ------------------------------------------
+
+    ensureInitialOrders();
+    applySkin(PLAYER.upgrades.current_skin || 'purple'); 
+    
+    updateHeader(); 
+    initAllMinigames(); 
+    renderShops(); 
+    switchView('tasks');
+    
+    // Cập nhật tên hiển thị để người chơi biết mình đang ở Beta
+    el('hello').textContent = `[BETA] ${name}`;
+    toast(`Đã kết nối Máy chủ thử nghiệm! Chế độ: ${selectedDiff}`);
+});
+
+// ---------- Helper to re-render components as needed ----------
+function renderInvMini(){ renderInventoryGame(); }
+function initAllMinigames(){ 
+    renderDecorate(); 
+    renderCleanMini(); 
+    renderMakeMini(); 
+    renderAdsMini(); 
+    renderInventoryGame(); 
+    renderServeMini(); 
+    renderStaffMini(); 
+    renderMaintMini(); 
+    renderShops(); 
+    renderBankMini(); // <--- Đảm bảo có dòng này
+}
+
+// ---------- Orders auto-generation ticker ----------
+setInterval(()=>{
+    if(PLAYER){
+        generateOrdersPeriodic();
+    }
+}, 15000); 
+
+// ---------- Countdown to next day (Vietnam timezone) ----------
+function getVNLocalMidnight(){
+    const now = new Date();
+    const tz = 'Asia/Ho_Chi_Minh';
+    const fmt = new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const parts = fmt.formatToParts(now).reduce((acc,p)=>{ acc[p.type]=p.value; return acc; },{});
+    const vnNow = new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`);
+    vnNow.setDate(vnNow.getDate()+1); vnNow.setHours(0,0,0,0);
+    const diff = vnNow.getTime() - now.getTime();
+    return vnNow.getTime();
+}
+
+// ---------- Hệ thống đếm ngược chuẩn Giờ Việt Nam (GMT+7) ----------
+let hasAutoSkipped = false;
+
+function updateCountdown() {
+    const displays = document.querySelectorAll('.stat-countdown');
+    if (displays.length === 0) return;
+
+    if (!PLAYER) {
+        displays.forEach(d => d.textContent = '--:--:--');
+        return;
+    }
+
+    // 1. Lấy thời gian hiện tại theo UTC
+    const now = new Date();
+    
+    // 2. Tính thời gian hiện tại tại VN (UTC + 7)
+    const vnNowMs = now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000);
+    const vnNow = new Date(vnNowMs);
+
+    // 3. Tạo mốc 0h:00:00 ngày TIẾP THEO tại Việt Nam
+    const vnTomorrow = new Date(vnNowMs);
+    vnTomorrow.setHours(0, 0, 0, 0); // Đưa về 0h sáng nay trước
+    vnTomorrow.setDate(vnTomorrow.getDate() + 1); // Rồi cộng thêm 1 ngày để ra 0h sáng mai
+
+    // 4. Tính toán số giây còn lại
+    const diffMs = vnTomorrow.getTime() - vnNow.getTime();
+    const secRemaining = Math.max(0, Math.floor(diffMs / 1000));
+    
+    displays.forEach(d => {
+        d.textContent = fmtTime(secRemaining);
+        
+        if (secRemaining <= 10 && secRemaining > 0) {
+            d.style.color = '#ff4d4d';
+        } else {
+            d.style.color = '';
+        }
+    });
+
+    // Tự động qua ngày khi đến 00:00:00
+    if (secRemaining <= 0 && !hasAutoSkipped) {
+        hasAutoSkipped = true; 
+        nextDay(true); 
+        setTimeout(() => { hasAutoSkipped = false; }, 2000);
+    }
+}
+
+// Chạy cập nhật mỗi giây
+setInterval(updateCountdown, 1000);
+// ---------- History & tasks initial render when page loads ----------
+function boot(){
+    // Kiểm tra xem có người chơi cũ đang đăng nhập không
+    const savedUser = localStorage.getItem('sbm_current_user');
+    
+    if (savedUser) {
+        const ply = loadPlayer(savedUser);
+        if (ply) {
+            PLAYER = ply;
+            
+            // Khôi phục trạng thái game
+            ensureInitialOrders();
+            applySkin(PLAYER.upgrades.current_skin || 'pink');
+            
+            // Render toàn bộ giao diện dữ liệu
+            updateHeader(); 
+            renderTasks(); 
+            initAllMinigames(); 
+            renderInventoryGame(); 
+            renderShops(); 
+            renderOrders(); 
+            renderHistory(); 
+            renderSkinButtons();
+            
+            // Nếu là tài khoản Beta, cập nhật tên hiển thị đặc biệt
+            if (savedUser.endsWith("_Beta")) {
+                const originalName = savedUser.replace("_Beta", "");
+                el('hello').textContent = `[BETA] ${originalName}`;
+            }
+
+            switchView('tasks'); 
+            return; // Thoát hàm boot, không chạy phần hiện loginView bên dưới
+        }
+    }
+
+    // Nếu không có người chơi cũ, hiển thị màn hình đăng nhập mặc định
+    switchView('loginView');
+    applySkin('pink'); 
+    updateHeader();
+    renderTasks();
+}
+boot();
+
+// ---------- Periodic save ----------
+setInterval(()=>{ if(PLAYER) savePlayer(PLAYER); }, 10000);
+
+// ---------- UI routing nav -->
+// Sửa lại logic trong menu click
+document.querySelectorAll('nav .menu-item').forEach(it=>{
+    it.addEventListener('click', ()=> {
+        const v = it.dataset.view; switchView(v);
+        if(v==='tasks') renderTasks();
+        if(v==='minigames') initAllMinigames();
+        if(v==='orders') renderOrders();
+        if(v==='inventory'){ 
+            renderInventoryGame(); 
+            renderShops(); 
+            renderBankMini(); // Thêm dòng này để chắc chắn hiện Bank khi vào Kho
+        }
+        if(v==='history') renderHistory();
+        if(v==='settings') renderSkinButtons();
+    });
+});
+
+    // ---------- Buttons & extras ----------
+el('btnGenerate3').addEventListener('click', ()=>{
+    if(!PLAYER) { toast('Đăng nhập để tạo order'); return; }
+    for(let i=0;i<3 && PLAYER.orders.length < 12; i++) PLAYER.orders.push(makeOrder());
+    PLAYER.lastOrderGenAt = Date.now();
+    savePlayer(PLAYER); renderOrders(); toast('Đã tạo 3 order');
+});
+
+
+
+
+
+
+el('exportSave').addEventListener('click', ()=>{
+    if(!PLAYER) { toast('Đăng nhập để xuất save'); return; }
+    const data = JSON.stringify(PLAYER);
+    prompt('Copy JSON save (dùng để import)', data);
+});
+
+el('importSave').addEventListener('click', ()=>{
+    const data = prompt('Dán JSON save data vào đây:');
+    if(!data) return;
+    try{
+        const importedPlayer = JSON.parse(data);
+        if(!importedPlayer || !importedPlayer.name || !importedPlayer.id){
+            toast('Lỗi: Dữ liệu save không hợp lệ', 4000);
+            return;
+        }
+        PLAYER = importedPlayer;
+        savePlayer(PLAYER);
+        // NEW: Áp dụng skin đã import
+        applySkin(PLAYER.upgrades.current_skin || 'pink');
+        
+        updateHeader(); initAllMinigames(); renderOrders(); renderTasks(); renderHistory(); renderSkinButtons();
+        switchView('tasks');
+        toast(`Import thành công! Đã load: ${PLAYER.name}`, 4000);
+    } catch(e){
+        toast('Lỗi: Không thể phân tích JSON', 4000);
+    }
+});
+
+el('resetAll').addEventListener('click', ()=>{
+    const confirmReset = confirm('Bạn CÓ CHẮC muốn xóa toàn bộ dữ liệu (bao gồm cả save hiện tại)? Hành động này không thể hoàn tác!');
+    if(confirmReset){
+        if(PLAYER){
+            removePlayerData(PLAYER.name);
+            PLAYER = null;
+        }
+        applySkin('pink'); // Reset màu giao diện
+        updateHeader();
+        el('taskList').innerHTML = '<div class="small">Vui lòng đăng nhập để thấy nhiệm vụ.</div>';
+        switchView('loginView');
+        toast('Đã xóa toàn bộ dữ liệu trên thiết bị.', 4000);
+    }
+});
+</script>
+</body>
+</html>
+
+
+
+
+
