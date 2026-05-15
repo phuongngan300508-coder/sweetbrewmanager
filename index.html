@@ -3385,7 +3385,8 @@ function renderSkinButtons() {
             const isCurrent = PLAYER.upgrades.current_skin === skinItem.skin;
             const buttonStyle = isCurrent ? `background: ${PASTEL_SKINS[skinItem.skin].accent}; color: white; border: 2px solid var(--text);` : `background: ${PASTEL_SKINS[skinItem.skin].card}; border: 1px solid var(--muted);`;
             
-            return `<button class="skin-btn btn-ghost" data-skin="${skinItem.skin}" style="${buttonStyle}">${skinItem.name}</button>`;
+            // SỬA TẠI ĐÂY: Thay skinItem.name bằng PASTEL_SKINS[skinItem.skin].name để lấy tên tiếng Việt chuẩn, không bị undefined
+            return `<button class="skin-btn btn-ghost" data-skin="${skinItem.skin}" style="${buttonStyle}">${PASTEL_SKINS[skinItem.skin].name}</button>`;
         }).join('');
         
     // Attach event listeners for switching skins
