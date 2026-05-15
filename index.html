@@ -643,6 +643,22 @@ footer:hover {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-10px) scale(1.05); }
 }
+
+    /* CẤU HÌNH BIẾN THIÊN TÁCH BIỆT HOÀN TOÀN 2 GIAO DIỆN PC & MOBILE */
+
+/* 1. Mặc định áp dụng cho Điện thoại (Mobile): Khóa cứng chiều rộng, không cho méo hay kéo qua kéo lại */
+.help-modal-responsive {
+    width: 340px !important; /* Khóa chặt chiều ngang chuẩn màn hình mobile */
+    max-width: 100% !important;
+}
+
+/* 2. Khi mở bằng Máy tính (PC) / Màn hình lớn hơn 1024px: Bùng nổ không gian nằm ngang */
+@media (min-width: 1024px) {
+    .help-modal-responsive {
+        width: 850px !important; /* Trải rộng 850px trên máy tính để chia 2 cột */
+        max-width: 850px !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -913,10 +929,11 @@ footer:hover {
 
 <div id="toast" class="toast hidden"></div>
 
-<!-- Cập nhật Popup hướng dẫn chơi tối ưu không gian chiều ngang PC -->
-<div id="helpModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
-    <!-- Nâng chiều rộng max-width lên 850px để tối ưu không gian máy tính -->
-    <div class="card" style="max-width:850px; width:100%; max-height:85vh; display:flex; flex-direction:column; position:relative; background:var(--bg); border:2px solid var(--accent); padding:16px; box-sizing:border-box; margin:0 auto; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+<!-- Khung nền overlay bao phủ toàn màn hình, cưỡng ép nội dung luôn nằm hồng tâm chính giữa -->
+<div id="helpModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; padding:12px; box-sizing:border-box;">
+    
+    <!-- HỘP THOẠI CHÍNH: Áp dụng CSS biến thiên thông minh để tách biệt 2 giao diện -->
+    <div class="card help-modal-responsive" style="display:flex; flex-direction:column; position:relative; background:var(--bg); border:2px solid var(--accent); padding:16px; box-sizing:border-box; box-shadow:0 10px 30px rgba(0,0,0,0.15); height:85vh;">
         
         <!-- Tiêu đề cố định ở trên đầu -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid var(--accent); padding-bottom:8px; flex-shrink:0;">
