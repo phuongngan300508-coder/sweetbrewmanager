@@ -644,20 +644,39 @@ footer:hover {
     50% { transform: translateY(-10px) scale(1.05); }
 }
 
-    /* CẤU HÌNH BIẾN THIÊN TÁCH BIỆT HOÀN TOÀN 2 GIAO DIỆN PC & MOBILE */
-
-/* 1. Áp dụng cho Điện thoại (Mobile): Tự động co giãn theo tỷ lệ màn hình, chừa lề 2 bên 16px */
+    /* ==========================================
+   1. GIAO DIỆN MẶC ĐỊNH CHO ĐIỆN THOẠI (MOBILE)
+   ========================================== */
 .help-modal-responsive {
-    width: calc(100% - 32px) !important; 
-    max-width: 480px !important; /* Chiều rộng tối đa vừa vặn cho mobile/tablet nhỏ */
+    width: calc(100% - 32px) !important;
+    max-width: 480px !important;
     box-sizing: border-box !important;
+    transition: all 0.3s ease;
 }
 
-/* 2. Khi mở bằng Máy tính (PC / Màn hình lớn hơn 1024px): Bùng nổ không gian nằm ngang */
+/* Các nhóm nội dung bên trong hiển thị dạng 1 cột dọc trên Mobile */
+.help-grid-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding-bottom: 5px;
+}
+
+/* ==========================================
+   2. GIAO DIỆN DÀNH RIÊNG CHO MÁY TÍNH (PC - Từ 1024px trở lên)
+   ========================================== */
 @media (min-width: 1024px) {
+    /* Mở rộng chiều ngang của hộp thoại trên PC */
     .help-modal-responsive {
-        width: 850px !important; 
+        width: 850px !important;
         max-width: 850px !important;
+    }
+
+    /* Bắt buộc vùng chứa bên trong chia làm 2 cột bằng nhau */
+    .help-grid-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* Chia chính xác thành 2 cột đều nhau */
+        gap: 20px !important; /* Khoảng cách giữa 2 cột thoáng hơn trên PC */
     }
 }
 </style>
@@ -3467,7 +3486,7 @@ function renderSkinButtons() {
 function showHelp() {
     const helpContent = `
         <!-- Sử dụng CSS Grid để tự động chuyển từ 1 cột (Mobile) sang 2 cột (PC) dựa trên chiều ngang -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100%, 1fr)); gap: 14px; padding-bottom: 5px;">
+        <div class="help-grid-container">
             
             <!-- SECTION 1 -->
             <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
