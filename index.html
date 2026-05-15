@@ -3444,49 +3444,106 @@ function renderSkinButtons() {
     });
 }
 
-// NEW: Hàm hiển thị Hướng dẫn (ĐÃ CẬP NHẬT)
+// NEW: Hàm hiển thị Hướng dẫn với thiết kế Pink Pastel tinh tế, sạch sẽ
 function showHelp() {
     const helpContent = `
-        <p><strong>1. Tiền Tệ:</strong><br>
-        - <b>Coin (₫):</b> Mua nguyên liệu, nâng cấp, Skin. Kiếm từ Order & Ads.<br>
-        - <b>Point (✨):</b> Đổi BeanCoin. Kiếm từ Nhiệm vụ & Bán Công thức.<br>
-        - <b>BeanCoin (⭐):</b> Dùng để đổi quà tặng mô phỏng.</p>
+        <div style="display: flex; flex-direction: column; gap: 14px; padding-bottom: 5px;">
+            
+            <!-- SECTION 1 -->
+            <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>💰</span> Hệ Thống Tiền Tệ
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px;">
+                    <div style="display: flex; align-items: flex-start; gap: 4px;">
+                        <span style="background: #fff; padding: 2px 6px; border-radius: 6px; font-weight: bold; border: 1px solid #eee; font-size: 11px; color: #e67e22; flex-shrink: 0;">Coin (₫)</span>
+                        <span style="margin-top: 1px;">Mua nguyên liệu, nâng cấp, Skin. Kiếm từ Order & Ads.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 4px;">
+                        <span style="background: #fff; padding: 2px 6px; border-radius: 6px; font-weight: bold; border: 1px solid #eee; font-size: 11px; color: #9b59b6; flex-shrink: 0;">Point (✨)</span>
+                        <span style="margin-top: 1px;">Đổi BeanCoin. Kiếm từ Nhiệm vụ & Bán Công thức.</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 4px;">
+                        <span style="background: #fff; padding: 2px 6px; border-radius: 6px; font-weight: bold; border: 1px solid #eee; font-size: 11px; color: #2ecc71; flex-shrink: 0;">BeanCoin (⭐)</span>
+                        <span style="margin-top: 1px;">Dùng để đổi quà tặng mô phỏng.</span>
+                    </div>
+                </div>
+            </div>
 
-        <p><strong>2. Gameplay Cốt Lõi:</strong><br>
-        - <b>Nhiệm vụ:</b> Hoàn thành mục tiêu trong Minigame để nhận Point.<br>
-        - <b>Minigame:</b> Làm tốt để đạt score cao (3-4) giúp xong nhiệm vụ nhanh hơn.</p>
-        
-        <p><strong>3. Mẹo Quản Lý:</strong><br>
-        - <b>Công thức:</b> Tốn 1000 ₫ nghiên cứu. Bán lấy Point (100 - 3000 pts).<br>
-        - <b>Nhân viên:</b> Đào tạo A &rarr; A+ (2000 ₫), S &rarr; S+ (3000 ₫). Sa thải staff đã đào tạo tốn 1000 ₫ phí bồi thường.<br>
-        - <b>Ngân hàng:</b> Vay tối đa 1.000.000 ₫. Lãi 10% mỗi 7 ngày. Trả chậm sẽ bị phạt thêm lãi!<br>
-        - <b>Uy tín:</b> Càng cao khách gọi Order Online càng nhanh.</p>
+            <!-- SECTION 2 -->
+            <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>🎮</span> Gameplay Cốt Lõi
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px;">
+                    <li><b>Nhiệm vụ:</b> Hoàn thành mục tiêu trong Minigame để nhận Point.</li>
+                    <li><b>Minigame:</b> Làm tốt để đạt score cao (3-4) giúp xong nhiệm vụ nhanh hơn.</li>
+                </ul>
+            </div>
 
-        <p><strong>4. Các Nâng Cấp Hiện Có:</strong><br>
-        - <b>Bàn Phục Vụ (+1):</b> Tăng số lượng bàn trong minigame Phục vụ, giúp hoàn thành mục tiêu nhanh hơn.<br>
-        - <b>Slot Công Thức (+5):</b> Mở rộng kho lưu trữ để bạn sáng tạo được nhiều món nước độc lạ hơn.<br>
-        - <b>Giao Diện (Skins):</b> Thay đổi màu sắc chủ đạo của quán (Xanh lá, Xanh dương, Tím, Vàng Pastel).<br>
-        - <b>Booster (Tạm thời 1h):</b> Tăng 50% Coin hoặc Point thu hoạch được trong vòng 60 phút.<br>
-        - <b>Đào Tạo Staff:</b> Nâng cấp Rank giúp nhân viên tự động làm nhiệm vụ và xử lý đơn hàng thay bạn.</p>
+            <!-- SECTION 3 -->
+            <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>💡</span> Mẹo Quản Lý
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px;">
+                    <li><b>Công thức:</b> Tốn 1000 ₫ nghiên cứu. Bán lấy Point (100 - 3000 pts).</li>
+                    <li><b>Nhân viên:</b> Đào tạo A &rarr; A+ (2000 ₫), S &rarr; S+ (3000 ₫). Sa thải staff đã đào tạo tốn 1000 ₫ phí bồi thường.</li>
+                    <li><b>Ngân hàng:</b> Vay tối đa 1.000.000 ₫. Lãi 10% mỗi 7 ngày. Trả chậm sẽ bị phạt thêm lãi!</li>
+                    <li><b>Uy tín:</b> Càng cao khách gọi Order Online càng nhanh.</li>
+                </ul>
+            </div>
 
-        <p><strong>5. Chọn Cấp Độ & Cửa Hàng:</strong><br>
-        - <b>Dễ:</b> Khởi đầu với 500k ₫. Phù hợp để làm quen game.<br>
-        - <b>Bình thường:</b> Khởi đầu với 300k ₫. Mở khóa các gói quà trung cấp.<br>
-        - <b>Khó:</b> Vốn khởi đầu 200k ₫. Cấp độ duy nhất mở khóa <b>Vật phẩm cao cấp (🔒)</b> và gói <b>SSM Thường</b> trong Shop thật.<br>
-        <i>*Lưu ý: Hãy cân nhắc chọn độ khó ngay từ khi đăng nhập để không bỏ lỡ các món quà yêu thích!</i></p>
+            <!-- SECTION 4 -->
+            <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>🛠️</span> Các Nâng Cấp Hiện Có
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px;">
+                    <li><b>Bàn Phục Vụ (+1):</b> Tăng số lượng bàn trong minigame Phục vụ, giúp hoàn thành mục tiêu nhanh hơn.</li>
+                    <li><b>Slot Công Thức (+5):</b> Mở rộng kho lưu trữ để bạn sáng tạo được nhiều món nước độc lạ hơn.</li>
+                    <li><b>Giao Diện (Skins):</b> Thay đổi màu sắc chủ đạo của quán (Xanh lá, Xanh dương, Tím, Vàng Pastel).</li>
+                    <li><b>Booster (Tạm thời 1h):</b> Tăng 50% Coin hoặc Point thu hoạch được trong vòng 60 phút.</li>
+                    <li><b>Đào Tạo Staff:</b> Nâng cấp Rank giúp nhân viên tự động làm nhiệm vụ và xử lý đơn hàng thay bạn.</li>
+                </ul>
+            </div>
 
-        <p><strong>6. Sự Kiện Ngẫu Nhiên & Thông Báo:</strong><br>
-        ⚠️ <b>Chú ý:</b> Mỗi khi sang ngày mới, hãy đọc kỹ dòng thông báo hiện lên để nắm bắt tình hình quán:<br>
-        - 🚀 <b>Giờ cao điểm (Rush Hour):</b> Doanh thu Online x2 (có thể cộng dồn với Booster thành x2.5).<br>
-        - ⚙️ <b>Máy hỏng:</b> Bạn phải vào mục Bảo trì để sửa ngay, nếu không sẽ bị trừ 10 Uy tín mỗi ngày.<br>
-        - 📰 <b>Báo chí khen ngợi:</b> Tăng mạnh điểm Uy tín cửa hàng.<br>
-        <i>*Mẹo: Hãy luôn chuẩn bị một lượng Coin dư để ứng phó với các sự kiện xấu bất ngờ!</i></p>
+            <!-- SECTION 5 -->
+            <div style="background: rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 182, 213, 0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>🏆</span> Chọn Cấp Độ & Cửa Hàng
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; padding-left: 4px;">
+                    <div>• <b>Dễ:</b> Khởi đầu với 500k ₫. Phù hợp để làm quen game.</div>
+                    <div>• <b>Bình thường:</b> Khởi đầu với 300k ₫. Mở khóa các gói quà trung cấp.</div>
+                    <div>• <b>Khó:</b> Vốn khởi đầu 200k ₫. Cấp độ duy nhất mở khóa <b>Vật phẩm cao cấp (🔒)</b> và gói <b>SSM Thường</b> trong Shop thật.</div>
+                    <div style="font-style: italic; color: var(--muted); font-size: 11.5px; margin-top: 2px;">*Lưu ý: Hãy cân nhắc chọn độ khó ngay từ khi đăng nhập để không bỏ lỡ các món quà yêu thích!</div>
+                </div>
+            </div>
+
+            <!-- SECTION 6 -->
+            <div style="background: linear-gradient(135deg, rgba(255,238,248,0.8), rgba(255,255,255,0.7)); padding: 12px; border-radius: 12px; border: 1px dashed var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="font-family: 'Fredoka'; font-size: 14px; color: #d63031; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-weight: bold;">
+                    <span>⚠️</span> Sự Kiện Ngẫu Nhiên & Thông Báo
+                </div>
+                <div style="font-size: 12.5px; line-height: 1.5; display: flex; flex-direction: column; gap: 5px;">
+                    <div><b>Chú ý:</b> Mỗi khi sang ngày mới, hãy đọc kỹ dòng thông báo hiện lên để nắm bắt tình hình quán:</div>
+                    <div style="padding-left: 8px;">
+                        <div>• 🚀 <b>Giờ cao điểm (Rush Hour):</b> Doanh thu Online x2 (có thể cộng dồn với Booster thành x2.5).</div>
+                        <div>• ⚙️ <b>Máy hỏng:</b> Bạn phải vào mục Bảo trì để sửa ngay, nếu không sẽ bị trừ 10 Uy tín mỗi ngày.</div>
+                        <div>• 📰 <b>Báo chí khen ngợi:</b> Tăng mạnh điểm Uy tín cửa hàng.</div>
+                    </div>
+                    <div style="font-style: italic; color: var(--text); font-size: 11.5px; font-weight: 500; margin-top: 1px;">*Mẹo: Hãy luôn chuẩn bị một lượng Coin dư để ứng phó với các sự kiện xấu bất ngờ!</div>
+                </div>
+            </div>
+
+        </div>
     `;
     
     el('helpContentArea').innerHTML = helpContent;
     el('helpModal').classList.remove('hidden');
 }
-
+    
 function closeHelp() {
     el('helpModal').classList.add('hidden');
 }
