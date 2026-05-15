@@ -637,9 +637,40 @@ footer:hover {
 .shop-scroll-container::-webkit-scrollbar-track {
     background: rgba(0,0,0,0.02);
 }
+
+    /* Animation nảy nhẹ cho icon ly cafe */
+@keyframes bounceBrew {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
 </style>
 </head>
 <body>
+    <!-- Giao diện Loading Screen Quán Cà Phê Pastel -->
+<div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fdf0f4; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Fredoka', sans-serif; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <!-- Khung hiệu ứng Glassmorphic chứa nội dung -->
+    <div style="background: rgba(255, 238, 248, 0.6); padding: 40px; border-radius: 24px; box-shadow: 0 8px 32px rgba(255, 182, 213, 0.3); border: 1px solid rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); text-align: center; max-width: 320px; width: 80%;">
+        
+        <!-- Icon quán cafe nhấp nháy dễ thương -->
+        <div id="loadingIcon" style="font-size: 64px; margin-bottom: 15px; animation: bounceBrew 1.5s infinite ease-in-out;">☕✨</div>
+        
+        <!-- Tên game in nổi -->
+        <h2 style="font-size: 24px; color: #4b2030; margin: 0; text-shadow: 1px 1px 0px #fff; letter-spacing: 0.5px;">Sweet Brew</h2>
+        <div style="font-size: 11px; color: #a66e86; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; font-weight: bold;">Manager</div>
+        
+        <!-- Thanh tiến trình (Progress Bar) -->
+        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.8); border-radius: 10px; margin-top: 25px; overflow: hidden; border: 1px solid rgba(214, 48, 49, 0.05);">
+            <div id="loadingProgressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ffb6d5, #ff98c0); border-radius: 10px; transition: width 0.1s linear;"></div>
+        </div>
+        
+        <!-- Số % và dòng trạng thái -->
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #4b2030; font-weight: bold;">
+            <span id="loadingStatusText">Đang chuẩn bị máy pha...</span>
+            <span id="loadingPercentText">0%</span>
+        </div>
+    </div>
+</div>
+    
 <div class="app">
     <header style="flex-direction: column; align-items: flex-start; gap: 10px;">
     <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start;">
@@ -3651,21 +3682,64 @@ function updateCountdown() {
 
 // Chạy cập nhật mỗi giây
 setInterval(updateCountdown, 1000);
-// ---------- History & tasks initial render when page loads ----------
+// ---------- Hệ thống Loading Screen & Khởi động game ----------
 function boot(){
-    // Kiểm tra xem có người chơi cũ đang đăng nhập không
+    const loadScreen = el('loadingScreen');
+    const progressFill = el('loadingProgressFill');
+    const percentText = el('loadingPercentText');
+    const statusText = el('loadingStatusText');
+    
+    // Danh sách các câu trạng thái vui nhộn cho quán cafe
+    const statusMessages = [
+        "Đang dọn sạch bàn ghế...",
+        "Đang xay hạt cà phê thơm...",
+        "Đang đánh bọt sữa béo ngậy...",
+        "Đang chuẩn bị nguyên liệu ngọt ngào...",
+        "Mở cửa đón khách thôi nào! ✨"
+    ];
+    
+    let currentProgress = 0;
+    
+    // Bộ đếm thời gian giả lập trạng thái tải tài nguyên ứng dụng (khoảng 2.5 giây)
+    const loadTicker = setInterval(() => {
+        currentProgress += Math.floor(Math.random() * 8) + 4; // Tiến trình tăng ngẫu nhiên
+        
+        if (currentProgress >= 100) {
+            currentProgress = 100;
+            clearInterval(loadTicker);
+            
+            // Tiến hành chuyển tiếp mượt mà vào giao diện chính
+            setTimeout(() => {
+                loadScreen.style.opacity = '0';
+                loadScreen.style.visibility = 'hidden';
+                
+                // Thực thi logic kiểm tra phiên đăng nhập hiện tại (Giữ nguyên gốc của bạn)
+                executeGameBootLogic();
+            }, 300);
+        }
+        
+        // Cập nhật thanh tiến trình hiển thị ra màn hình
+        progressFill.style.width = currentProgress + '%';
+        percentText.textContent = currentProgress + '%';
+        
+        // Thay đổi câu chữ trạng thái tương ứng với tiến độ %
+        const msgIdx = Math.min(Math.floor(currentProgress / 21), statusMessages.length - 1);
+        statusText.textContent = statusMessages[msgIdx];
+        
+    }, 100);
+}
+
+// Tách biệt logic xử lý phiên cũ để gọi sau khi thanh loading đạt 100%
+function executeGameBootLogic() {
     const savedUser = localStorage.getItem('sbm_current_user');
     
     if (savedUser) {
         const ply = loadPlayer(savedUser);
         if (ply) {
             PLAYER = ply;
-            
-            // Khôi phục trạng thái game
             ensureInitialOrders();
             applySkin(PLAYER.upgrades.current_skin || 'pink');
             
-            // Render toàn bộ giao diện dữ liệu
             updateHeader(); 
             renderTasks(); 
             initAllMinigames(); 
@@ -3675,23 +3749,24 @@ function boot(){
             renderHistory(); 
             renderSkinButtons();
             
-            // Nếu là tài khoản Beta, cập nhật tên hiển thị đặc biệt
             if (savedUser.endsWith("_Beta")) {
                 const originalName = savedUser.replace("_Beta", "");
                 el('hello').textContent = `[BETA] ${originalName}`;
             }
 
             switchView('tasks'); 
-            return; // Thoát hàm boot, không chạy phần hiện loginView bên dưới
+            return;
         }
     }
 
-    // Nếu không có người chơi cũ, hiển thị màn hình đăng nhập mặc định
+    // Nếu không có session cũ, đưa thẳng về màn hình đăng nhập
     switchView('loginView');
     applySkin('pink'); 
     updateHeader();
     renderTasks();
 }
+
+// Gọi hàm khởi động ứng dụng ngay khi tải trang
 boot();
 
 // ---------- Periodic save ----------
